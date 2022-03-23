@@ -7,6 +7,7 @@ type EndpointRequest struct {
 type EndpointRules struct {
 	ID               int               `json:"id"`
 	Url              string            `json:"url"`
+	Method           string            `json:"method"`
 	Body             string            `json:"body"`
 	BodyDependency   []Dependency      `json:"body_dependency"`
 	Header           map[string]string `json:"header"`
@@ -24,4 +25,9 @@ type Dependency struct {
 
 	//KeyParentType string `json:"key_parent_type"`
 	//KeyType       string `json:"key_type"`
+}
+
+type EndpointResponses struct {
+	HeaderResponses map[int]map[string][]string `json:"header_responses"`
+	BodyResponses   map[int]string              `json:"body_responses"`
 }
