@@ -34,7 +34,7 @@ var endpointCmd = &cobra.Command{
 		controllers := handlers.NewHttpControllers(endpointHandler)
 
 		e.GET("/", controllers.Hello)
-		e.GET("/endpoint", controllers.RegisterEndpoints)
+		e.POST("/endpoint/register/<project_id>", controllers.RegisterEndpoints)
 
 		// Start server
 		go func() {

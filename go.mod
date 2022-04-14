@@ -3,6 +3,7 @@ module test-manager
 go 1.17
 
 require (
+	github.com/kr/pretty v0.3.0
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/spf13/cobra v1.4.0
 	github.com/tidwall/gjson v1.14.0
@@ -11,7 +12,6 @@ require (
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
@@ -22,6 +22,9 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
+	github.com/volatiletech/inflect v0.0.1 // indirect
+	github.com/volatiletech/sqlboiler/v4 v4.9.2 // indirect
+	github.com/volatiletech/strmangle v0.0.2 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect

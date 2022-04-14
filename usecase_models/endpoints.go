@@ -1,4 +1,4 @@
-package models
+package usecase_models
 
 type EndpointRequest struct {
 	Endpoints []EndpointRules `json:"endpoints"`

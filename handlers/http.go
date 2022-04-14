@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"test-manager/models"
+	"strconv"
+	"test-manager/usecase_models"
 )
 
 type HttpControllers interface {
@@ -24,12 +26,16 @@ func (hc *httpControllers) Hello(ctx echo.Context) error {
 }
 
 func (hc *httpControllers) RegisterEndpoints(ctx echo.Context) error {
-	req := new(models.EndpointRequest)
+	req := new(usecase_models.EndpointRequest)
 	if err := ctx.Bind(req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
+	projectId, err := strconv.Atoi(ctx.Get("project_id").(string))
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
 
-	err := hc.endpointHandler.RegisterRules(*req)
+	err = hc.endpointHandler.RegisterRules(context.TODO(), *req, projectId)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err.Error())
 	}

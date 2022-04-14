@@ -5,40 +5,59 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/kr/pretty"
 	"github.com/tidwall/gjson"
+	"github.com/volatiletech/null/v8"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"test-manager/models"
+	"test-manager/repos"
+	"test-manager/usecase_models"
+	models "test-manager/usecase_models/boiler"
 )
 
 type EndpointHandler interface {
-	RegisterRules(ctx context.Context, rules models.EndpointRequest) error
+	RegisterRules(ctx context.Context, rules usecase_models.EndpointRequest, projectId int) error
+	ExecuteRule(ctx context.Context, rules usecase_models.EndpointRequest) error
 }
 
 type endpointHandler struct {
+	endpointRepo repos.EndpointRepository
 }
 
-func NewEndpointHandler() EndpointHandler {
-	return &endpointHandler{}
+func NewEndpointHandler(endpointRepo repos.EndpointRepository) EndpointHandler {
+	return &endpointHandler{endpointRepo: endpointRepo}
 }
 
-func (e *endpointHandler) RegisterRules(ctx context.Context, rules models.EndpointRequest) error {
-	fmt.Printf("%# v", pretty.Formatter(rules))
-	var responses = models.EndpointResponses{}
+func (e endpointHandler) RegisterRules(ctx context.Context, rules usecase_models.EndpointRequest, projectId int) error {
+	j, _ := json.Marshal(rules)
+	rulesStr := string(j)
+	_, err := e.endpointRepo.SaveEndpoint(ctx, models.Endpoint{
+		Data:      null.NewString(rulesStr, true),
+		ProjectID: projectId,
+	})
+	if err != nil {
+		return err
+	}
+
+
+}
+
+func (e *endpointHandler) ExecuteRule(ctx context.Context, rules usecase_models.EndpointRequest) error {
+	var responses = usecase_models.EndpointResponses{
+		HeaderResponses: map[int]map[string][]string{},
+		BodyResponses:   map[int]string{},
+	}
 	for _, rule := range rules.Endpoints {
 		var value []string
 		for _, bodyDependency := range rule.BodyDependency {
-			if bodyDependency.ParentKey[0:8] == "$header_" {
+			if len(bodyDependency.ParentKey) >= 8 && bodyDependency.ParentKey[0:8] == "$header_" {
 				value = responses.HeaderResponses[bodyDependency.EndpointId][bodyDependency.ParentKey[8:]]
-			} else if bodyDependency.ParentKey[0:6] == "$body_" {
+			} else if len(bodyDependency.ParentKey) >= 6 && bodyDependency.ParentKey[0:6] == "$body_" {
 				value = []string{gjson.Get(responses.BodyResponses[bodyDependency.EndpointId], bodyDependency.ParentKey[6:]).String()}
 			} else {
 				panic("wtf")
 			}
-			ruleBody := gjson.Get(rule.Body, "#(...)#").Value().(map[string]interface{})
+			ruleBody := gjson.Parse(rule.Body).Value().(map[string]interface{})
 			ruleBody[bodyDependency.Key] = strings.Join(value[:], ",")
 			newBody, err := json.Marshal(ruleBody)
 			if err != nil {
@@ -48,9 +67,9 @@ func (e *endpointHandler) RegisterRules(ctx context.Context, rules models.Endpoi
 		}
 		for _, headerDependency := range rule.HeaderDependency {
 			var value []string
-			if headerDependency.ParentKey[0:8] == "$header_" {
+			if len(headerDependency.ParentKey) >= 8 && headerDependency.ParentKey[0:8] == "$header_" {
 				value = responses.HeaderResponses[headerDependency.EndpointId][headerDependency.ParentKey[8:]]
-			} else if headerDependency.ParentKey[0:6] == "$body_" {
+			} else if len(headerDependency.ParentKey) >= 6 && headerDependency.ParentKey[0:6] == "$body_" {
 				value = []string{gjson.Get(responses.BodyResponses[headerDependency.EndpointId], headerDependency.ParentKey[6:]).String()}
 			} else {
 				panic("wtf")
@@ -76,15 +95,14 @@ func (e *endpointHandler) RegisterRules(ctx context.Context, rules models.Endpoi
 		responses.BodyResponses[rule.ID] = string(respBody)
 		responses.HeaderResponses[rule.ID] = resp.Header
 	}
-	fmt.Printf("%# v", pretty.Formatter(rules))
 	return nil
 }
 
-func getEndpoint(id int, endpointRules []models.EndpointRules) (models.EndpointRules, error) {
+func getEndpoint(id int, endpointRules []usecase_models.EndpointRules) (usecase_models.EndpointRules, error) {
 	for _, rule := range endpointRules {
 		if rule.ID == id {
 			return rule, nil
 		}
 	}
-	return models.EndpointRules{}, errors.New("dont know why")
+	return usecase_models.EndpointRules{}, errors.New("dont know why")
 }
