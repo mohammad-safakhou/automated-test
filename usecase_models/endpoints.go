@@ -1,7 +1,8 @@
 package usecase_models
 
 type EndpointRequest struct {
-	Endpoints []EndpointRules `json:"endpoints"`
+	Endpoints  []EndpointRules `json:"endpoints"`
+	Scheduling Scheduling      `json:"scheduling"`
 }
 
 type EndpointRules struct {
@@ -12,6 +13,14 @@ type EndpointRules struct {
 	BodyDependency   []Dependency      `json:"body_dependency"`
 	Header           map[string]string `json:"header"`
 	HeaderDependency []Dependency      `json:"header_dependency"`
+	AcceptanceModel                    // check keys with their type and status
+
+}
+
+type Scheduling struct {
+	PipelineId     int    `json:"pipeline_id"`
+	Duration       string `json:"duration"`
+	DataCentersIds []int  `json:"data_centers"` // datacenter id
 }
 
 type Dependency struct {

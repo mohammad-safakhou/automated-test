@@ -39,7 +39,6 @@ func (e endpointHandler) RegisterRules(ctx context.Context, rules usecase_models
 		return err
 	}
 
-
 }
 
 func (e *endpointHandler) ExecuteRule(ctx context.Context, rules usecase_models.EndpointRequest) error {
