@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"github.com/hibiken/asynq"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
@@ -10,6 +11,9 @@ import (
 	"os"
 	"os/signal"
 	"test-manager/handlers"
+	"test-manager/repos"
+	"test-manager/tasks/push"
+	"test-manager/utils"
 	"time"
 )
 
@@ -30,7 +34,26 @@ var endpointCmd = &cobra.Command{
 			AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 		}))
 
-		endpointHandler := handlers.NewEndpointHandler()
+		redisClient, err := utils.CreateRedisConnection(context.TODO(), "localhost", "6379", 3*time.Second)
+		if err != nil {
+			panic(err)
+		}
+
+		psqlDb, err := utils.PostgresConnection("localhost", "5432", "root", "root", "tester", "disable")
+		if err != nil {
+			panic(err)
+		}
+		asynqClient := asynq.NewClient(asynq.RedisClientOpt{
+			Addr:        redisClient.Options().Addr,
+			DialTimeout: redisClient.Options().DialTimeout,
+			Username:    redisClient.Options().Username,
+			Password:    redisClient.Options().Password,
+		})
+		taskPusher := push.NewTaskPush(asynqClient)
+
+		endpointRepo := repos.NewEndpointRepository(psqlDb)
+
+		endpointHandler := handlers.NewEndpointHandler(endpointRepo, taskPusher)
 		controllers := handlers.NewHttpControllers(endpointHandler)
 
 		e.GET("/", controllers.Hello)

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strings"
 	"test-manager/repos"
+	"test-manager/tasks/push"
 	"test-manager/usecase_models"
 	models "test-manager/usecase_models/boiler"
 )
@@ -22,10 +23,11 @@ type EndpointHandler interface {
 
 type endpointHandler struct {
 	endpointRepo repos.EndpointRepository
+	taskPusher   push.TaskPusher
 }
 
-func NewEndpointHandler(endpointRepo repos.EndpointRepository) EndpointHandler {
-	return &endpointHandler{endpointRepo: endpointRepo}
+func NewEndpointHandler(endpointRepo repos.EndpointRepository, taskPusher push.TaskPusher) EndpointHandler {
+	return &endpointHandler{endpointRepo: endpointRepo, taskPusher: taskPusher}
 }
 
 func (e endpointHandler) RegisterRules(ctx context.Context, rules usecase_models.EndpointRequest, projectId int) error {
@@ -39,6 +41,11 @@ func (e endpointHandler) RegisterRules(ctx context.Context, rules usecase_models
 		return err
 	}
 
+	_, err = e.taskPusher.PushToEndpoint(ctx, rules)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (e *endpointHandler) ExecuteRule(ctx context.Context, rules usecase_models.EndpointRequest) error {
