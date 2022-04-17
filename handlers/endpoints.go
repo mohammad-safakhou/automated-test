@@ -9,6 +9,7 @@ import (
 	"github.com/volatiletech/null/v8"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strings"
 	"test-manager/repos"
 	"test-manager/tasks/push"
@@ -98,10 +99,50 @@ func (e *endpointHandler) ExecuteRule(ctx context.Context, rules usecase_models.
 		}
 		defer resp.Body.Close()
 		respBody, _ := ioutil.ReadAll(resp.Body)
+		if !acceptanceCriteria(resp.Status, respBody, rule.AcceptanceModel) {
+			// TODO: send alert
+			break
+		}
+
 		responses.BodyResponses[rule.ID] = string(respBody)
 		responses.HeaderResponses[rule.ID] = resp.Header
 	}
 	return nil
+}
+
+func acceptanceCriteria(status string, body []byte, acceptRules usecase_models.AcceptanceModel) bool {
+	statusCheck := false
+	for _, val := range acceptRules.Statuses {
+		if val == status {
+			statusCheck = true
+			break
+		}
+	}
+	if !statusCheck {
+		return false
+	}
+
+	var respbody map[string]interface{}
+	json.Unmarshal(body, &respbody)
+
+	bodyCheck := true
+	for _, val := range acceptRules.ResponseBodies {
+		value, ok := respbody[val.Key]
+		if !ok {
+			bodyCheck = false
+			break
+		}
+		if reflect.TypeOf(value).String() != val.Value {
+			bodyCheck = false
+			break
+		}
+	}
+
+	if !bodyCheck {
+		return false
+	}
+
+	return true
 }
 
 func getEndpoint(id int, endpointRules []usecase_models.EndpointRules) (usecase_models.EndpointRules, error) {
