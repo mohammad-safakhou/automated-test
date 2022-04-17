@@ -1,6 +1,6 @@
 package main
 
-//go:generate sqlboiler --wipe --no-tests psql -o models/boiler
+//go:generate sqlboiler --wipe --no-tests psql -o usecase_models/boiler
 
 import "test-manager/cmd"
 

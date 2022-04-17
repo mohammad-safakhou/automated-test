@@ -8,7 +8,7 @@ create table if not exists projects
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_at TIMESTAMP NOT NULL,
     deleted_at TIMESTAMP
-);
+    );
 
 create table if not exists endpoints
 (
@@ -21,7 +21,7 @@ create table if not exists endpoints
     deleted_at TIMESTAMP,
 
     foreign key (project_id) references projects(id)
-);
+    );
 
 create table if not exists datacenters
 (
@@ -33,10 +33,11 @@ create table if not exists datacenters
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_at TIMESTAMP NOT NULL,
     deleted_at TIMESTAMP
-);
+    );
 
 create table if not exists relation_datacenters
 (
+    id SERIAL primary key,
     endpoint_id int ,
     datacenter_id int ,
 
@@ -44,9 +45,9 @@ create table if not exists relation_datacenters
     created_at TIMESTAMP NOT NULL,
     deleted_at TIMESTAMP,
 
-    foreign key endpoint_id references endpoints(id),
-    foreign key datacenter_id references datacenters(id)
-);
+    foreign key (endpoint_id) references endpoints(id),
+    foreign key (datacenter_id) references datacenters(id)
+    );
 
 create table if not exists schedulings
 (
@@ -59,4 +60,4 @@ create table if not exists schedulings
     deleted_at TIMESTAMP,
 
     foreign key (project_id) references projects(id)
-);
+    );
