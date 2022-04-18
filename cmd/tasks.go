@@ -17,6 +17,13 @@ const (
 	numWorkersAsynq = 20
 )
 
+var (
+	// list of queues associated with priority, large numbers indicate higher priority
+	queues = map[string]int{
+		task_models.QueueEndpoint: 6,
+	}
+)
+
 func init() {
 	rootCmd.AddCommand(consumeTasksCmd)
 }
@@ -48,6 +55,7 @@ var consumeTasksCmd = &cobra.Command{
 			}, asynq.Config{
 				Concurrency: numWorkersAsynq,
 				Logger:      zLogger,
+				Queues:      queues,
 			},
 		)
 

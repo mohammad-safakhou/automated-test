@@ -33,7 +33,10 @@ func (t *taskPush) PushToEndpoint(ctx context.Context, payload usecase_models.En
 	for i := 0; i < repeat; i++ {
 		task := asynq.NewTask(task_models.TypeEndpoint, payloadBytes)
 
-		_, err := t.taskClient.Enqueue(task)
+		_, err := t.taskClient.Enqueue(
+			task,
+			asynq.ProcessIn(time.Duration(i)*time.Minute),
+			asynq.Queue(task_models.QueueEndpoint))
 		if err != nil {
 			log.Println("error at enqueue endpoint task: ", err)
 		}
