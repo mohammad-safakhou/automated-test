@@ -1,7 +1,5 @@
 package usecase_models
 
-import "time"
-
 type EndpointRequest struct {
 	Endpoints  []EndpointRules `json:"endpoints"`
 	Scheduling Scheduling      `json:"scheduling"`
@@ -19,10 +17,10 @@ type EndpointRules struct {
 }
 
 type Scheduling struct {
-	ProjectId      int       `json:"project_id"`
-	Duration       int       `json:"duration"`
-	EndAt          time.Time `json:"end_at"`
-	DataCentersIds []int     `json:"data_centers"` // datacenter id
+	ProjectId      int    `json:"project_id"`
+	Duration       int    `json:"duration"`
+	EndAt          string `json:"end_at"`
+	DataCentersIds []int  `json:"data_centers"` // datacenter id
 }
 
 type AcceptanceModel struct {

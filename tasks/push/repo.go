@@ -28,7 +28,12 @@ func (t *taskPush) PushToEndpoint(ctx context.Context, payload usecase_models.En
 		return "", err
 	}
 
-	repeat := int(payload.Scheduling.EndAt.Sub(time.Now()).Minutes() / float64(payload.Scheduling.Duration))
+	endAt, err := time.Parse("2006-01-02 15:04:05", payload.Scheduling.EndAt)
+	if err != nil {
+
+		return "", err
+	}
+	repeat := int(endAt.Sub(time.Now()).Minutes() / float64(payload.Scheduling.Duration))
 
 	for i := 0; i < repeat; i++ {
 		task := asynq.NewTask(task_models.TypeEndpoint, payloadBytes)

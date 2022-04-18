@@ -30,7 +30,7 @@ func (hc *httpControllers) RegisterEndpoints(ctx echo.Context) error {
 	if err := ctx.Bind(req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
-	projectId, err := strconv.Atoi(ctx.Get("project_id").(string))
+	projectId, err := strconv.Atoi(ctx.Param("project_id"))
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}

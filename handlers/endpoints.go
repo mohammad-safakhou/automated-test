@@ -9,7 +9,6 @@ import (
 	"github.com/volatiletech/null/v8"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strings"
 	"test-manager/repos"
 	"test-manager/tasks/push"
@@ -83,6 +82,8 @@ func (e *endpointHandler) ExecuteRule(ctx context.Context, rules usecase_models.
 			}
 			rule.Header[headerDependency.Key] = strings.Join(value[:], ",")
 		}
+
+		// TODO: call our agent in datacenters to call this for us
 		req, err := http.NewRequestWithContext(ctx, rule.Method, rule.Url, bytes.NewBuffer([]byte(rule.Body)))
 		if err != nil {
 			panic(err)
@@ -127,15 +128,15 @@ func acceptanceCriteria(status string, body []byte, acceptRules usecase_models.A
 
 	bodyCheck := true
 	for _, val := range acceptRules.ResponseBodies {
-		value, ok := respbody[val.Key]
+		_, ok := respbody[val.Key]
 		if !ok {
 			bodyCheck = false
 			break
 		}
-		if reflect.TypeOf(value).String() != val.Value {
-			bodyCheck = false
-			break
-		}
+		//if reflect.TypeOf(value).String() != val.Value {
+		//	bodyCheck = false
+		//	break
+		//}
 	}
 
 	if !bodyCheck {
