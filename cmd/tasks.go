@@ -68,8 +68,10 @@ var consumeTasksCmd = &cobra.Command{
 		taskPusher := push.NewTaskPush(asynqClient)
 
 		endpointRepo := repos.NewEndpointRepository(psqlDb)
+		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 
-		endpointHandler := handlers.NewEndpointHandler(endpointRepo, taskPusher)
+		agentHandler := handlers.NewAgentHandler()
+		endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
 
 		mux := asynq.NewServeMux()
 		// handlers

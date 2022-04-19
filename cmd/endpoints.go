@@ -52,8 +52,10 @@ var endpointCmd = &cobra.Command{
 		taskPusher := push.NewTaskPush(asynqClient)
 
 		endpointRepo := repos.NewEndpointRepository(psqlDb)
+		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 
-		endpointHandler := handlers.NewEndpointHandler(endpointRepo, taskPusher)
+		agentHandler := handlers.NewAgentHandler()
+		endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
 		controllers := handlers.NewHttpControllers(endpointHandler)
 
 		e.GET("/", controllers.Hello)
