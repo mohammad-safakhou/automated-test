@@ -23,6 +23,58 @@ create table if not exists endpoints
     foreign key (project_id) references projects(id)
     );
 
+create table if not exists trace_routes
+(
+    id SERIAL primary key,
+    data text,
+    project_id int not null,
+
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP,
+
+    foreign key (project_id) references projects(id)
+    );
+
+create table if not exists net_cats
+(
+    id SERIAL primary key,
+    data text,
+    project_id int not null,
+
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP,
+
+    foreign key (project_id) references projects(id)
+    );
+
+create table if not exists pings
+(
+    id SERIAL primary key,
+    data text,
+    project_id int not null,
+
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP,
+
+    foreign key (project_id) references projects(id)
+    );
+
+create table if not exists page_speeds
+(
+    id SERIAL primary key,
+    data text,
+    project_id int not null,
+
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP,
+
+    foreign key (project_id) references projects(id)
+    );
+
 create table if not exists datacenters
 (
     id SERIAL primary key,

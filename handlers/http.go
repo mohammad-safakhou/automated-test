@@ -10,23 +10,23 @@ import (
 
 type HttpControllers interface {
 	Hello(ctx echo.Context) error
-	RegisterEndpoints(ctx echo.Context) error
+	RegisterRules(ctx echo.Context) error
 }
 
 type httpControllers struct {
-	endpointHandler EndpointHandler
+	rulesHandler RulesHandler
 }
 
-func NewHttpControllers(endpointHandler EndpointHandler) HttpControllers {
-	return &httpControllers{endpointHandler: endpointHandler}
+func NewHttpControllers(rulesHandler RulesHandler) HttpControllers {
+	return &httpControllers{rulesHandler: rulesHandler}
 }
 
 func (hc *httpControllers) Hello(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, "yo")
 }
 
-func (hc *httpControllers) RegisterEndpoints(ctx echo.Context) error {
-	req := new(usecase_models.EndpointRequest)
+func (hc *httpControllers) RegisterRules(ctx echo.Context) error {
+	req := new(usecase_models.RulesRequest)
 	if err := ctx.Bind(req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -35,7 +35,7 @@ func (hc *httpControllers) RegisterEndpoints(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err = hc.endpointHandler.RegisterRules(context.TODO(), *req, projectId)
+	err = hc.rulesHandler.RegisterRules(context.TODO(), *req, projectId)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err.Error())
 	}

@@ -22,120 +22,120 @@ import (
 	"github.com/volatiletech/strmangle"
 )
 
-// Scheduling is an object representing the database table.
-type Scheduling struct {
-	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	ProjectID int       `boil:"project_id" json:"project_id" toml:"project_id" yaml:"project_id"`
-	Duration  string    `boil:"duration" json:"duration" toml:"duration" yaml:"duration"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	DeletedAt null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+// TraceRoute is an object representing the database table.
+type TraceRoute struct {
+	ID        int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Data      null.String `boil:"data" json:"data,omitempty" toml:"data" yaml:"data,omitempty"`
+	ProjectID int         `boil:"project_id" json:"project_id" toml:"project_id" yaml:"project_id"`
+	UpdatedAt time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	DeletedAt null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
-	R *schedulingR `boil:"-" json:"-" toml:"-" yaml:"-"`
-	L schedulingL  `boil:"-" json:"-" toml:"-" yaml:"-"`
+	R *traceRouteR `boil:"-" json:"-" toml:"-" yaml:"-"`
+	L traceRouteL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
-var SchedulingColumns = struct {
+var TraceRouteColumns = struct {
 	ID        string
+	Data      string
 	ProjectID string
-	Duration  string
 	UpdatedAt string
 	CreatedAt string
 	DeletedAt string
 }{
 	ID:        "id",
+	Data:      "data",
 	ProjectID: "project_id",
-	Duration:  "duration",
 	UpdatedAt: "updated_at",
 	CreatedAt: "created_at",
 	DeletedAt: "deleted_at",
 }
 
-var SchedulingTableColumns = struct {
+var TraceRouteTableColumns = struct {
 	ID        string
+	Data      string
 	ProjectID string
-	Duration  string
 	UpdatedAt string
 	CreatedAt string
 	DeletedAt string
 }{
-	ID:        "schedulings.id",
-	ProjectID: "schedulings.project_id",
-	Duration:  "schedulings.duration",
-	UpdatedAt: "schedulings.updated_at",
-	CreatedAt: "schedulings.created_at",
-	DeletedAt: "schedulings.deleted_at",
+	ID:        "trace_routes.id",
+	Data:      "trace_routes.data",
+	ProjectID: "trace_routes.project_id",
+	UpdatedAt: "trace_routes.updated_at",
+	CreatedAt: "trace_routes.created_at",
+	DeletedAt: "trace_routes.deleted_at",
 }
 
 // Generated where
 
-var SchedulingWhere = struct {
+var TraceRouteWhere = struct {
 	ID        whereHelperint
+	Data      whereHelpernull_String
 	ProjectID whereHelperint
-	Duration  whereHelperstring
 	UpdatedAt whereHelpertime_Time
 	CreatedAt whereHelpertime_Time
 	DeletedAt whereHelpernull_Time
 }{
-	ID:        whereHelperint{field: "\"schedulings\".\"id\""},
-	ProjectID: whereHelperint{field: "\"schedulings\".\"project_id\""},
-	Duration:  whereHelperstring{field: "\"schedulings\".\"duration\""},
-	UpdatedAt: whereHelpertime_Time{field: "\"schedulings\".\"updated_at\""},
-	CreatedAt: whereHelpertime_Time{field: "\"schedulings\".\"created_at\""},
-	DeletedAt: whereHelpernull_Time{field: "\"schedulings\".\"deleted_at\""},
+	ID:        whereHelperint{field: "\"trace_routes\".\"id\""},
+	Data:      whereHelpernull_String{field: "\"trace_routes\".\"data\""},
+	ProjectID: whereHelperint{field: "\"trace_routes\".\"project_id\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"trace_routes\".\"updated_at\""},
+	CreatedAt: whereHelpertime_Time{field: "\"trace_routes\".\"created_at\""},
+	DeletedAt: whereHelpernull_Time{field: "\"trace_routes\".\"deleted_at\""},
 }
 
-// SchedulingRels is where relationship names are stored.
-var SchedulingRels = struct {
+// TraceRouteRels is where relationship names are stored.
+var TraceRouteRels = struct {
 	Project string
 }{
 	Project: "Project",
 }
 
-// schedulingR is where relationships are stored.
-type schedulingR struct {
+// traceRouteR is where relationships are stored.
+type traceRouteR struct {
 	Project *Project `boil:"Project" json:"Project" toml:"Project" yaml:"Project"`
 }
 
 // NewStruct creates a new relationship struct
-func (*schedulingR) NewStruct() *schedulingR {
-	return &schedulingR{}
+func (*traceRouteR) NewStruct() *traceRouteR {
+	return &traceRouteR{}
 }
 
-// schedulingL is where Load methods for each relationship are stored.
-type schedulingL struct{}
+// traceRouteL is where Load methods for each relationship are stored.
+type traceRouteL struct{}
 
 var (
-	schedulingAllColumns            = []string{"id", "project_id", "duration", "updated_at", "created_at", "deleted_at"}
-	schedulingColumnsWithoutDefault = []string{"project_id", "duration", "created_at"}
-	schedulingColumnsWithDefault    = []string{"id", "updated_at", "deleted_at"}
-	schedulingPrimaryKeyColumns     = []string{"id"}
-	schedulingGeneratedColumns      = []string{}
+	traceRouteAllColumns            = []string{"id", "data", "project_id", "updated_at", "created_at", "deleted_at"}
+	traceRouteColumnsWithoutDefault = []string{"project_id", "created_at"}
+	traceRouteColumnsWithDefault    = []string{"id", "data", "updated_at", "deleted_at"}
+	traceRoutePrimaryKeyColumns     = []string{"id"}
+	traceRouteGeneratedColumns      = []string{}
 )
 
 type (
-	// SchedulingSlice is an alias for a slice of pointers to Scheduling.
-	// This should almost always be used instead of []Scheduling.
-	SchedulingSlice []*Scheduling
-	// SchedulingHook is the signature for custom Scheduling hook methods
-	SchedulingHook func(context.Context, boil.ContextExecutor, *Scheduling) error
+	// TraceRouteSlice is an alias for a slice of pointers to TraceRoute.
+	// This should almost always be used instead of []TraceRoute.
+	TraceRouteSlice []*TraceRoute
+	// TraceRouteHook is the signature for custom TraceRoute hook methods
+	TraceRouteHook func(context.Context, boil.ContextExecutor, *TraceRoute) error
 
-	schedulingQuery struct {
+	traceRouteQuery struct {
 		*queries.Query
 	}
 )
 
 // Cache for insert, update and upsert
 var (
-	schedulingType                 = reflect.TypeOf(&Scheduling{})
-	schedulingMapping              = queries.MakeStructMapping(schedulingType)
-	schedulingPrimaryKeyMapping, _ = queries.BindMapping(schedulingType, schedulingMapping, schedulingPrimaryKeyColumns)
-	schedulingInsertCacheMut       sync.RWMutex
-	schedulingInsertCache          = make(map[string]insertCache)
-	schedulingUpdateCacheMut       sync.RWMutex
-	schedulingUpdateCache          = make(map[string]updateCache)
-	schedulingUpsertCacheMut       sync.RWMutex
-	schedulingUpsertCache          = make(map[string]insertCache)
+	traceRouteType                 = reflect.TypeOf(&TraceRoute{})
+	traceRouteMapping              = queries.MakeStructMapping(traceRouteType)
+	traceRoutePrimaryKeyMapping, _ = queries.BindMapping(traceRouteType, traceRouteMapping, traceRoutePrimaryKeyColumns)
+	traceRouteInsertCacheMut       sync.RWMutex
+	traceRouteInsertCache          = make(map[string]insertCache)
+	traceRouteUpdateCacheMut       sync.RWMutex
+	traceRouteUpdateCache          = make(map[string]updateCache)
+	traceRouteUpsertCacheMut       sync.RWMutex
+	traceRouteUpsertCache          = make(map[string]insertCache)
 )
 
 var (
@@ -146,27 +146,27 @@ var (
 	_ = qmhelper.Where
 )
 
-var schedulingAfterSelectHooks []SchedulingHook
+var traceRouteAfterSelectHooks []TraceRouteHook
 
-var schedulingBeforeInsertHooks []SchedulingHook
-var schedulingAfterInsertHooks []SchedulingHook
+var traceRouteBeforeInsertHooks []TraceRouteHook
+var traceRouteAfterInsertHooks []TraceRouteHook
 
-var schedulingBeforeUpdateHooks []SchedulingHook
-var schedulingAfterUpdateHooks []SchedulingHook
+var traceRouteBeforeUpdateHooks []TraceRouteHook
+var traceRouteAfterUpdateHooks []TraceRouteHook
 
-var schedulingBeforeDeleteHooks []SchedulingHook
-var schedulingAfterDeleteHooks []SchedulingHook
+var traceRouteBeforeDeleteHooks []TraceRouteHook
+var traceRouteAfterDeleteHooks []TraceRouteHook
 
-var schedulingBeforeUpsertHooks []SchedulingHook
-var schedulingAfterUpsertHooks []SchedulingHook
+var traceRouteBeforeUpsertHooks []TraceRouteHook
+var traceRouteAfterUpsertHooks []TraceRouteHook
 
 // doAfterSelectHooks executes all "after Select" hooks.
-func (o *Scheduling) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterSelectHooks {
+	for _, hook := range traceRouteAfterSelectHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -176,12 +176,12 @@ func (o *Scheduling) doAfterSelectHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Scheduling) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeInsertHooks {
+	for _, hook := range traceRouteBeforeInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -191,12 +191,12 @@ func (o *Scheduling) doBeforeInsertHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Scheduling) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterInsertHooks {
+	for _, hook := range traceRouteAfterInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -206,12 +206,12 @@ func (o *Scheduling) doAfterInsertHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Scheduling) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeUpdateHooks {
+	for _, hook := range traceRouteBeforeUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -221,12 +221,12 @@ func (o *Scheduling) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Scheduling) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterUpdateHooks {
+	for _, hook := range traceRouteAfterUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -236,12 +236,12 @@ func (o *Scheduling) doAfterUpdateHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Scheduling) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeDeleteHooks {
+	for _, hook := range traceRouteBeforeDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -251,12 +251,12 @@ func (o *Scheduling) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Scheduling) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterDeleteHooks {
+	for _, hook := range traceRouteAfterDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -266,12 +266,12 @@ func (o *Scheduling) doAfterDeleteHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Scheduling) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeUpsertHooks {
+	for _, hook := range traceRouteBeforeUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -281,12 +281,12 @@ func (o *Scheduling) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Scheduling) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *TraceRoute) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterUpsertHooks {
+	for _, hook := range traceRouteAfterUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -295,33 +295,33 @@ func (o *Scheduling) doAfterUpsertHooks(ctx context.Context, exec boil.ContextEx
 	return nil
 }
 
-// AddSchedulingHook registers your hook function for all future operations.
-func AddSchedulingHook(hookPoint boil.HookPoint, schedulingHook SchedulingHook) {
+// AddTraceRouteHook registers your hook function for all future operations.
+func AddTraceRouteHook(hookPoint boil.HookPoint, traceRouteHook TraceRouteHook) {
 	switch hookPoint {
 	case boil.AfterSelectHook:
-		schedulingAfterSelectHooks = append(schedulingAfterSelectHooks, schedulingHook)
+		traceRouteAfterSelectHooks = append(traceRouteAfterSelectHooks, traceRouteHook)
 	case boil.BeforeInsertHook:
-		schedulingBeforeInsertHooks = append(schedulingBeforeInsertHooks, schedulingHook)
+		traceRouteBeforeInsertHooks = append(traceRouteBeforeInsertHooks, traceRouteHook)
 	case boil.AfterInsertHook:
-		schedulingAfterInsertHooks = append(schedulingAfterInsertHooks, schedulingHook)
+		traceRouteAfterInsertHooks = append(traceRouteAfterInsertHooks, traceRouteHook)
 	case boil.BeforeUpdateHook:
-		schedulingBeforeUpdateHooks = append(schedulingBeforeUpdateHooks, schedulingHook)
+		traceRouteBeforeUpdateHooks = append(traceRouteBeforeUpdateHooks, traceRouteHook)
 	case boil.AfterUpdateHook:
-		schedulingAfterUpdateHooks = append(schedulingAfterUpdateHooks, schedulingHook)
+		traceRouteAfterUpdateHooks = append(traceRouteAfterUpdateHooks, traceRouteHook)
 	case boil.BeforeDeleteHook:
-		schedulingBeforeDeleteHooks = append(schedulingBeforeDeleteHooks, schedulingHook)
+		traceRouteBeforeDeleteHooks = append(traceRouteBeforeDeleteHooks, traceRouteHook)
 	case boil.AfterDeleteHook:
-		schedulingAfterDeleteHooks = append(schedulingAfterDeleteHooks, schedulingHook)
+		traceRouteAfterDeleteHooks = append(traceRouteAfterDeleteHooks, traceRouteHook)
 	case boil.BeforeUpsertHook:
-		schedulingBeforeUpsertHooks = append(schedulingBeforeUpsertHooks, schedulingHook)
+		traceRouteBeforeUpsertHooks = append(traceRouteBeforeUpsertHooks, traceRouteHook)
 	case boil.AfterUpsertHook:
-		schedulingAfterUpsertHooks = append(schedulingAfterUpsertHooks, schedulingHook)
+		traceRouteAfterUpsertHooks = append(traceRouteAfterUpsertHooks, traceRouteHook)
 	}
 }
 
-// One returns a single scheduling record from the query.
-func (q schedulingQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Scheduling, error) {
-	o := &Scheduling{}
+// One returns a single traceRoute record from the query.
+func (q traceRouteQuery) One(ctx context.Context, exec boil.ContextExecutor) (*TraceRoute, error) {
+	o := &TraceRoute{}
 
 	queries.SetLimit(q.Query, 1)
 
@@ -330,7 +330,7 @@ func (q schedulingQuery) One(ctx context.Context, exec boil.ContextExecutor) (*S
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: failed to execute a one query for schedulings")
+		return nil, errors.Wrap(err, "models: failed to execute a one query for trace_routes")
 	}
 
 	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
@@ -340,16 +340,16 @@ func (q schedulingQuery) One(ctx context.Context, exec boil.ContextExecutor) (*S
 	return o, nil
 }
 
-// All returns all Scheduling records from the query.
-func (q schedulingQuery) All(ctx context.Context, exec boil.ContextExecutor) (SchedulingSlice, error) {
-	var o []*Scheduling
+// All returns all TraceRoute records from the query.
+func (q traceRouteQuery) All(ctx context.Context, exec boil.ContextExecutor) (TraceRouteSlice, error) {
+	var o []*TraceRoute
 
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
-		return nil, errors.Wrap(err, "models: failed to assign all query results to Scheduling slice")
+		return nil, errors.Wrap(err, "models: failed to assign all query results to TraceRoute slice")
 	}
 
-	if len(schedulingAfterSelectHooks) != 0 {
+	if len(traceRouteAfterSelectHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
 				return o, err
@@ -360,8 +360,8 @@ func (q schedulingQuery) All(ctx context.Context, exec boil.ContextExecutor) (Sc
 	return o, nil
 }
 
-// Count returns the count of all Scheduling records in the query.
-func (q schedulingQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+// Count returns the count of all TraceRoute records in the query.
+func (q traceRouteQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -369,14 +369,14 @@ func (q schedulingQuery) Count(ctx context.Context, exec boil.ContextExecutor) (
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to count schedulings rows")
+		return 0, errors.Wrap(err, "models: failed to count trace_routes rows")
 	}
 
 	return count, nil
 }
 
 // Exists checks if the row exists in the table.
-func (q schedulingQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
+func (q traceRouteQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -385,14 +385,14 @@ func (q schedulingQuery) Exists(ctx context.Context, exec boil.ContextExecutor) 
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "models: failed to check if schedulings exists")
+		return false, errors.Wrap(err, "models: failed to check if trace_routes exists")
 	}
 
 	return count > 0, nil
 }
 
 // Project pointed to by the foreign key.
-func (o *Scheduling) Project(mods ...qm.QueryMod) projectQuery {
+func (o *TraceRoute) Project(mods ...qm.QueryMod) projectQuery {
 	queryMods := []qm.QueryMod{
 		qm.Where("\"id\" = ?", o.ProjectID),
 	}
@@ -404,20 +404,20 @@ func (o *Scheduling) Project(mods ...qm.QueryMod) projectQuery {
 
 // LoadProject allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, singular bool, maybeScheduling interface{}, mods queries.Applicator) error {
-	var slice []*Scheduling
-	var object *Scheduling
+func (traceRouteL) LoadProject(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTraceRoute interface{}, mods queries.Applicator) error {
+	var slice []*TraceRoute
+	var object *TraceRoute
 
 	if singular {
-		object = maybeScheduling.(*Scheduling)
+		object = maybeTraceRoute.(*TraceRoute)
 	} else {
-		slice = *maybeScheduling.(*[]*Scheduling)
+		slice = *maybeTraceRoute.(*[]*TraceRoute)
 	}
 
 	args := make([]interface{}, 0, 1)
 	if singular {
 		if object.R == nil {
-			object.R = &schedulingR{}
+			object.R = &traceRouteR{}
 		}
 		args = append(args, object.ProjectID)
 
@@ -425,7 +425,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 	Outer:
 		for _, obj := range slice {
 			if obj.R == nil {
-				obj.R = &schedulingR{}
+				obj.R = &traceRouteR{}
 			}
 
 			for _, a := range args {
@@ -468,7 +468,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for projects")
 	}
 
-	if len(schedulingAfterSelectHooks) != 0 {
+	if len(traceRouteAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
@@ -486,7 +486,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 		if foreign.R == nil {
 			foreign.R = &projectR{}
 		}
-		foreign.R.Schedulings = append(foreign.R.Schedulings, object)
+		foreign.R.TraceRoutes = append(foreign.R.TraceRoutes, object)
 		return nil
 	}
 
@@ -497,7 +497,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 				if foreign.R == nil {
 					foreign.R = &projectR{}
 				}
-				foreign.R.Schedulings = append(foreign.R.Schedulings, local)
+				foreign.R.TraceRoutes = append(foreign.R.TraceRoutes, local)
 				break
 			}
 		}
@@ -506,10 +506,10 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 	return nil
 }
 
-// SetProject of the scheduling to the related item.
+// SetProject of the traceRoute to the related item.
 // Sets o.R.Project to related.
-// Adds o to related.R.Schedulings.
-func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Project) error {
+// Adds o to related.R.TraceRoutes.
+func (o *TraceRoute) SetProject(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Project) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -518,9 +518,9 @@ func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, 
 	}
 
 	updateQuery := fmt.Sprintf(
-		"UPDATE \"schedulings\" SET %s WHERE %s",
+		"UPDATE \"trace_routes\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-		strmangle.WhereClause("\"", "\"", 2, schedulingPrimaryKeyColumns),
+		strmangle.WhereClause("\"", "\"", 2, traceRoutePrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
 
@@ -535,7 +535,7 @@ func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, 
 
 	o.ProjectID = related.ID
 	if o.R == nil {
-		o.R = &schedulingR{
+		o.R = &traceRouteR{
 			Project: related,
 		}
 	} else {
@@ -544,61 +544,61 @@ func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, 
 
 	if related.R == nil {
 		related.R = &projectR{
-			Schedulings: SchedulingSlice{o},
+			TraceRoutes: TraceRouteSlice{o},
 		}
 	} else {
-		related.R.Schedulings = append(related.R.Schedulings, o)
+		related.R.TraceRoutes = append(related.R.TraceRoutes, o)
 	}
 
 	return nil
 }
 
-// Schedulings retrieves all the records using an executor.
-func Schedulings(mods ...qm.QueryMod) schedulingQuery {
-	mods = append(mods, qm.From("\"schedulings\""))
+// TraceRoutes retrieves all the records using an executor.
+func TraceRoutes(mods ...qm.QueryMod) traceRouteQuery {
+	mods = append(mods, qm.From("\"trace_routes\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
-		queries.SetSelect(q, []string{"\"schedulings\".*"})
+		queries.SetSelect(q, []string{"\"trace_routes\".*"})
 	}
 
-	return schedulingQuery{NewQuery(mods...)}
+	return traceRouteQuery{NewQuery(mods...)}
 }
 
-// FindScheduling retrieves a single record by ID with an executor.
+// FindTraceRoute retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindScheduling(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Scheduling, error) {
-	schedulingObj := &Scheduling{}
+func FindTraceRoute(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*TraceRoute, error) {
+	traceRouteObj := &TraceRoute{}
 
 	sel := "*"
 	if len(selectCols) > 0 {
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"schedulings\" where \"id\"=$1", sel,
+		"select %s from \"trace_routes\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
 
-	err := q.Bind(ctx, exec, schedulingObj)
+	err := q.Bind(ctx, exec, traceRouteObj)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: unable to select from schedulings")
+		return nil, errors.Wrap(err, "models: unable to select from trace_routes")
 	}
 
-	if err = schedulingObj.doAfterSelectHooks(ctx, exec); err != nil {
-		return schedulingObj, err
+	if err = traceRouteObj.doAfterSelectHooks(ctx, exec); err != nil {
+		return traceRouteObj, err
 	}
 
-	return schedulingObj, nil
+	return traceRouteObj, nil
 }
 
 // Insert a single record using an executor.
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
-func (o *Scheduling) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
+func (o *TraceRoute) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no schedulings provided for insertion")
+		return errors.New("models: no trace_routes provided for insertion")
 	}
 
 	var err error
@@ -617,33 +617,33 @@ func (o *Scheduling) Insert(ctx context.Context, exec boil.ContextExecutor, colu
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(schedulingColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(traceRouteColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
-	schedulingInsertCacheMut.RLock()
-	cache, cached := schedulingInsertCache[key]
-	schedulingInsertCacheMut.RUnlock()
+	traceRouteInsertCacheMut.RLock()
+	cache, cached := traceRouteInsertCache[key]
+	traceRouteInsertCacheMut.RUnlock()
 
 	if !cached {
 		wl, returnColumns := columns.InsertColumnSet(
-			schedulingAllColumns,
-			schedulingColumnsWithDefault,
-			schedulingColumnsWithoutDefault,
+			traceRouteAllColumns,
+			traceRouteColumnsWithDefault,
+			traceRouteColumnsWithoutDefault,
 			nzDefaults,
 		)
 
-		cache.valueMapping, err = queries.BindMapping(schedulingType, schedulingMapping, wl)
+		cache.valueMapping, err = queries.BindMapping(traceRouteType, traceRouteMapping, wl)
 		if err != nil {
 			return err
 		}
-		cache.retMapping, err = queries.BindMapping(schedulingType, schedulingMapping, returnColumns)
+		cache.retMapping, err = queries.BindMapping(traceRouteType, traceRouteMapping, returnColumns)
 		if err != nil {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"schedulings\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"trace_routes\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"schedulings\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"trace_routes\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -671,22 +671,22 @@ func (o *Scheduling) Insert(ctx context.Context, exec boil.ContextExecutor, colu
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "models: unable to insert into schedulings")
+		return errors.Wrap(err, "models: unable to insert into trace_routes")
 	}
 
 	if !cached {
-		schedulingInsertCacheMut.Lock()
-		schedulingInsertCache[key] = cache
-		schedulingInsertCacheMut.Unlock()
+		traceRouteInsertCacheMut.Lock()
+		traceRouteInsertCache[key] = cache
+		traceRouteInsertCacheMut.Unlock()
 	}
 
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
-// Update uses an executor to update the Scheduling.
+// Update uses an executor to update the TraceRoute.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
-func (o *Scheduling) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+func (o *TraceRoute) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
@@ -698,28 +698,28 @@ func (o *Scheduling) Update(ctx context.Context, exec boil.ContextExecutor, colu
 		return 0, err
 	}
 	key := makeCacheKey(columns, nil)
-	schedulingUpdateCacheMut.RLock()
-	cache, cached := schedulingUpdateCache[key]
-	schedulingUpdateCacheMut.RUnlock()
+	traceRouteUpdateCacheMut.RLock()
+	cache, cached := traceRouteUpdateCache[key]
+	traceRouteUpdateCacheMut.RUnlock()
 
 	if !cached {
 		wl := columns.UpdateColumnSet(
-			schedulingAllColumns,
-			schedulingPrimaryKeyColumns,
+			traceRouteAllColumns,
+			traceRoutePrimaryKeyColumns,
 		)
 
 		if !columns.IsWhitelist() {
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("models: unable to update schedulings, could not build whitelist")
+			return 0, errors.New("models: unable to update trace_routes, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"schedulings\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"trace_routes\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
-			strmangle.WhereClause("\"", "\"", len(wl)+1, schedulingPrimaryKeyColumns),
+			strmangle.WhereClause("\"", "\"", len(wl)+1, traceRoutePrimaryKeyColumns),
 		)
-		cache.valueMapping, err = queries.BindMapping(schedulingType, schedulingMapping, append(wl, schedulingPrimaryKeyColumns...))
+		cache.valueMapping, err = queries.BindMapping(traceRouteType, traceRouteMapping, append(wl, traceRoutePrimaryKeyColumns...))
 		if err != nil {
 			return 0, err
 		}
@@ -735,42 +735,42 @@ func (o *Scheduling) Update(ctx context.Context, exec boil.ContextExecutor, colu
 	var result sql.Result
 	result, err = exec.ExecContext(ctx, cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update schedulings row")
+		return 0, errors.Wrap(err, "models: unable to update trace_routes row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by update for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by update for trace_routes")
 	}
 
 	if !cached {
-		schedulingUpdateCacheMut.Lock()
-		schedulingUpdateCache[key] = cache
-		schedulingUpdateCacheMut.Unlock()
+		traceRouteUpdateCacheMut.Lock()
+		traceRouteUpdateCache[key] = cache
+		traceRouteUpdateCacheMut.Unlock()
 	}
 
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
 // UpdateAll updates all rows with the specified column values.
-func (q schedulingQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (q traceRouteQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all for schedulings")
+		return 0, errors.Wrap(err, "models: unable to update all for trace_routes")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for schedulings")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for trace_routes")
 	}
 
 	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
-func (o SchedulingSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (o TraceRouteSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	ln := int64(len(o))
 	if ln == 0 {
 		return 0, nil
@@ -792,13 +792,13 @@ func (o SchedulingSlice) UpdateAll(ctx context.Context, exec boil.ContextExecuto
 
 	// Append all of the primary key values for each column
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), schedulingPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), traceRoutePrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"schedulings\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"trace_routes\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, schedulingPrimaryKeyColumns, len(o)))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, traceRoutePrimaryKeyColumns, len(o)))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -807,21 +807,21 @@ func (o SchedulingSlice) UpdateAll(ctx context.Context, exec boil.ContextExecuto
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all in scheduling slice")
+		return 0, errors.Wrap(err, "models: unable to update all in traceRoute slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all scheduling")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all traceRoute")
 	}
 	return rowsAff, nil
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
-func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+func (o *TraceRoute) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no schedulings provided for upsert")
+		return errors.New("models: no trace_routes provided for upsert")
 	}
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
@@ -836,7 +836,7 @@ func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(schedulingColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(traceRouteColumnsWithDefault, o)
 
 	// Build cache key in-line uglily - mysql vs psql problems
 	buf := strmangle.GetBuffer()
@@ -866,42 +866,42 @@ func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 	key := buf.String()
 	strmangle.PutBuffer(buf)
 
-	schedulingUpsertCacheMut.RLock()
-	cache, cached := schedulingUpsertCache[key]
-	schedulingUpsertCacheMut.RUnlock()
+	traceRouteUpsertCacheMut.RLock()
+	cache, cached := traceRouteUpsertCache[key]
+	traceRouteUpsertCacheMut.RUnlock()
 
 	var err error
 
 	if !cached {
 		insert, ret := insertColumns.InsertColumnSet(
-			schedulingAllColumns,
-			schedulingColumnsWithDefault,
-			schedulingColumnsWithoutDefault,
+			traceRouteAllColumns,
+			traceRouteColumnsWithDefault,
+			traceRouteColumnsWithoutDefault,
 			nzDefaults,
 		)
 
 		update := updateColumns.UpdateColumnSet(
-			schedulingAllColumns,
-			schedulingPrimaryKeyColumns,
+			traceRouteAllColumns,
+			traceRoutePrimaryKeyColumns,
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("models: unable to upsert schedulings, could not build update column list")
+			return errors.New("models: unable to upsert trace_routes, could not build update column list")
 		}
 
 		conflict := conflictColumns
 		if len(conflict) == 0 {
-			conflict = make([]string, len(schedulingPrimaryKeyColumns))
-			copy(conflict, schedulingPrimaryKeyColumns)
+			conflict = make([]string, len(traceRoutePrimaryKeyColumns))
+			copy(conflict, traceRoutePrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQueryPostgres(dialect, "\"schedulings\"", updateOnConflict, ret, update, conflict, insert)
+		cache.query = buildUpsertQueryPostgres(dialect, "\"trace_routes\"", updateOnConflict, ret, update, conflict, insert)
 
-		cache.valueMapping, err = queries.BindMapping(schedulingType, schedulingMapping, insert)
+		cache.valueMapping, err = queries.BindMapping(traceRouteType, traceRouteMapping, insert)
 		if err != nil {
 			return err
 		}
 		if len(ret) != 0 {
-			cache.retMapping, err = queries.BindMapping(schedulingType, schedulingMapping, ret)
+			cache.retMapping, err = queries.BindMapping(traceRouteType, traceRouteMapping, ret)
 			if err != nil {
 				return err
 			}
@@ -929,31 +929,31 @@ func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 		_, err = exec.ExecContext(ctx, cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "models: unable to upsert schedulings")
+		return errors.Wrap(err, "models: unable to upsert trace_routes")
 	}
 
 	if !cached {
-		schedulingUpsertCacheMut.Lock()
-		schedulingUpsertCache[key] = cache
-		schedulingUpsertCacheMut.Unlock()
+		traceRouteUpsertCacheMut.Lock()
+		traceRouteUpsertCache[key] = cache
+		traceRouteUpsertCacheMut.Unlock()
 	}
 
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
-// Delete deletes a single Scheduling record with an executor.
+// Delete deletes a single TraceRoute record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Scheduling) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *TraceRoute) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
-		return 0, errors.New("models: no Scheduling provided for delete")
+		return 0, errors.New("models: no TraceRoute provided for delete")
 	}
 
 	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), schedulingPrimaryKeyMapping)
-	sql := "DELETE FROM \"schedulings\" WHERE \"id\"=$1"
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), traceRoutePrimaryKeyMapping)
+	sql := "DELETE FROM \"trace_routes\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -962,12 +962,12 @@ func (o *Scheduling) Delete(ctx context.Context, exec boil.ContextExecutor) (int
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete from schedulings")
+		return 0, errors.Wrap(err, "models: unable to delete from trace_routes")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for trace_routes")
 	}
 
 	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
@@ -978,33 +978,33 @@ func (o *Scheduling) Delete(ctx context.Context, exec boil.ContextExecutor) (int
 }
 
 // DeleteAll deletes all matching rows.
-func (q schedulingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q traceRouteQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
-		return 0, errors.New("models: no schedulingQuery provided for delete all")
+		return 0, errors.New("models: no traceRouteQuery provided for delete all")
 	}
 
 	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from schedulings")
+		return 0, errors.Wrap(err, "models: unable to delete all from trace_routes")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for trace_routes")
 	}
 
 	return rowsAff, nil
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o TraceRouteSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
 
-	if len(schedulingBeforeDeleteHooks) != 0 {
+	if len(traceRouteBeforeDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -1014,12 +1014,12 @@ func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 
 	var args []interface{}
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), schedulingPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), traceRoutePrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "DELETE FROM \"schedulings\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, schedulingPrimaryKeyColumns, len(o))
+	sql := "DELETE FROM \"trace_routes\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, traceRoutePrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1028,15 +1028,15 @@ func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from scheduling slice")
+		return 0, errors.Wrap(err, "models: unable to delete all from traceRoute slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for trace_routes")
 	}
 
-	if len(schedulingAfterDeleteHooks) != 0 {
+	if len(traceRouteAfterDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -1049,8 +1049,8 @@ func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 
 // Reload refetches the object from the database
 // using the primary keys with an executor.
-func (o *Scheduling) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindScheduling(ctx, exec, o.ID)
+func (o *TraceRoute) Reload(ctx context.Context, exec boil.ContextExecutor) error {
+	ret, err := FindTraceRoute(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -1061,26 +1061,26 @@ func (o *Scheduling) Reload(ctx context.Context, exec boil.ContextExecutor) erro
 
 // ReloadAll refetches every row with matching primary key column values
 // and overwrites the original object slice with the newly updated slice.
-func (o *SchedulingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
+func (o *TraceRouteSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
 	if o == nil || len(*o) == 0 {
 		return nil
 	}
 
-	slice := SchedulingSlice{}
+	slice := TraceRouteSlice{}
 	var args []interface{}
 	for _, obj := range *o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), schedulingPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), traceRoutePrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"schedulings\".* FROM \"schedulings\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, schedulingPrimaryKeyColumns, len(*o))
+	sql := "SELECT \"trace_routes\".* FROM \"trace_routes\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, traceRoutePrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
 	err := q.Bind(ctx, exec, &slice)
 	if err != nil {
-		return errors.Wrap(err, "models: unable to reload all in SchedulingSlice")
+		return errors.Wrap(err, "models: unable to reload all in TraceRouteSlice")
 	}
 
 	*o = slice
@@ -1088,10 +1088,10 @@ func (o *SchedulingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecut
 	return nil
 }
 
-// SchedulingExists checks if the Scheduling row exists.
-func SchedulingExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
+// TraceRouteExists checks if the TraceRoute row exists.
+func TraceRouteExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"schedulings\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"trace_routes\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1102,7 +1102,7 @@ func SchedulingExists(ctx context.Context, exec boil.ContextExecutor, iD int) (b
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "models: unable to check if schedulings exists")
+		return false, errors.Wrap(err, "models: unable to check if trace_routes exists")
 	}
 
 	return exists, nil

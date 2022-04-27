@@ -22,120 +22,120 @@ import (
 	"github.com/volatiletech/strmangle"
 )
 
-// Scheduling is an object representing the database table.
-type Scheduling struct {
-	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	ProjectID int       `boil:"project_id" json:"project_id" toml:"project_id" yaml:"project_id"`
-	Duration  string    `boil:"duration" json:"duration" toml:"duration" yaml:"duration"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	DeletedAt null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+// PageSpeed is an object representing the database table.
+type PageSpeed struct {
+	ID        int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Data      null.String `boil:"data" json:"data,omitempty" toml:"data" yaml:"data,omitempty"`
+	ProjectID int         `boil:"project_id" json:"project_id" toml:"project_id" yaml:"project_id"`
+	UpdatedAt time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	DeletedAt null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
-	R *schedulingR `boil:"-" json:"-" toml:"-" yaml:"-"`
-	L schedulingL  `boil:"-" json:"-" toml:"-" yaml:"-"`
+	R *pageSpeedR `boil:"-" json:"-" toml:"-" yaml:"-"`
+	L pageSpeedL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
-var SchedulingColumns = struct {
+var PageSpeedColumns = struct {
 	ID        string
+	Data      string
 	ProjectID string
-	Duration  string
 	UpdatedAt string
 	CreatedAt string
 	DeletedAt string
 }{
 	ID:        "id",
+	Data:      "data",
 	ProjectID: "project_id",
-	Duration:  "duration",
 	UpdatedAt: "updated_at",
 	CreatedAt: "created_at",
 	DeletedAt: "deleted_at",
 }
 
-var SchedulingTableColumns = struct {
+var PageSpeedTableColumns = struct {
 	ID        string
+	Data      string
 	ProjectID string
-	Duration  string
 	UpdatedAt string
 	CreatedAt string
 	DeletedAt string
 }{
-	ID:        "schedulings.id",
-	ProjectID: "schedulings.project_id",
-	Duration:  "schedulings.duration",
-	UpdatedAt: "schedulings.updated_at",
-	CreatedAt: "schedulings.created_at",
-	DeletedAt: "schedulings.deleted_at",
+	ID:        "page_speeds.id",
+	Data:      "page_speeds.data",
+	ProjectID: "page_speeds.project_id",
+	UpdatedAt: "page_speeds.updated_at",
+	CreatedAt: "page_speeds.created_at",
+	DeletedAt: "page_speeds.deleted_at",
 }
 
 // Generated where
 
-var SchedulingWhere = struct {
+var PageSpeedWhere = struct {
 	ID        whereHelperint
+	Data      whereHelpernull_String
 	ProjectID whereHelperint
-	Duration  whereHelperstring
 	UpdatedAt whereHelpertime_Time
 	CreatedAt whereHelpertime_Time
 	DeletedAt whereHelpernull_Time
 }{
-	ID:        whereHelperint{field: "\"schedulings\".\"id\""},
-	ProjectID: whereHelperint{field: "\"schedulings\".\"project_id\""},
-	Duration:  whereHelperstring{field: "\"schedulings\".\"duration\""},
-	UpdatedAt: whereHelpertime_Time{field: "\"schedulings\".\"updated_at\""},
-	CreatedAt: whereHelpertime_Time{field: "\"schedulings\".\"created_at\""},
-	DeletedAt: whereHelpernull_Time{field: "\"schedulings\".\"deleted_at\""},
+	ID:        whereHelperint{field: "\"page_speeds\".\"id\""},
+	Data:      whereHelpernull_String{field: "\"page_speeds\".\"data\""},
+	ProjectID: whereHelperint{field: "\"page_speeds\".\"project_id\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"page_speeds\".\"updated_at\""},
+	CreatedAt: whereHelpertime_Time{field: "\"page_speeds\".\"created_at\""},
+	DeletedAt: whereHelpernull_Time{field: "\"page_speeds\".\"deleted_at\""},
 }
 
-// SchedulingRels is where relationship names are stored.
-var SchedulingRels = struct {
+// PageSpeedRels is where relationship names are stored.
+var PageSpeedRels = struct {
 	Project string
 }{
 	Project: "Project",
 }
 
-// schedulingR is where relationships are stored.
-type schedulingR struct {
+// pageSpeedR is where relationships are stored.
+type pageSpeedR struct {
 	Project *Project `boil:"Project" json:"Project" toml:"Project" yaml:"Project"`
 }
 
 // NewStruct creates a new relationship struct
-func (*schedulingR) NewStruct() *schedulingR {
-	return &schedulingR{}
+func (*pageSpeedR) NewStruct() *pageSpeedR {
+	return &pageSpeedR{}
 }
 
-// schedulingL is where Load methods for each relationship are stored.
-type schedulingL struct{}
+// pageSpeedL is where Load methods for each relationship are stored.
+type pageSpeedL struct{}
 
 var (
-	schedulingAllColumns            = []string{"id", "project_id", "duration", "updated_at", "created_at", "deleted_at"}
-	schedulingColumnsWithoutDefault = []string{"project_id", "duration", "created_at"}
-	schedulingColumnsWithDefault    = []string{"id", "updated_at", "deleted_at"}
-	schedulingPrimaryKeyColumns     = []string{"id"}
-	schedulingGeneratedColumns      = []string{}
+	pageSpeedAllColumns            = []string{"id", "data", "project_id", "updated_at", "created_at", "deleted_at"}
+	pageSpeedColumnsWithoutDefault = []string{"project_id", "created_at"}
+	pageSpeedColumnsWithDefault    = []string{"id", "data", "updated_at", "deleted_at"}
+	pageSpeedPrimaryKeyColumns     = []string{"id"}
+	pageSpeedGeneratedColumns      = []string{}
 )
 
 type (
-	// SchedulingSlice is an alias for a slice of pointers to Scheduling.
-	// This should almost always be used instead of []Scheduling.
-	SchedulingSlice []*Scheduling
-	// SchedulingHook is the signature for custom Scheduling hook methods
-	SchedulingHook func(context.Context, boil.ContextExecutor, *Scheduling) error
+	// PageSpeedSlice is an alias for a slice of pointers to PageSpeed.
+	// This should almost always be used instead of []PageSpeed.
+	PageSpeedSlice []*PageSpeed
+	// PageSpeedHook is the signature for custom PageSpeed hook methods
+	PageSpeedHook func(context.Context, boil.ContextExecutor, *PageSpeed) error
 
-	schedulingQuery struct {
+	pageSpeedQuery struct {
 		*queries.Query
 	}
 )
 
 // Cache for insert, update and upsert
 var (
-	schedulingType                 = reflect.TypeOf(&Scheduling{})
-	schedulingMapping              = queries.MakeStructMapping(schedulingType)
-	schedulingPrimaryKeyMapping, _ = queries.BindMapping(schedulingType, schedulingMapping, schedulingPrimaryKeyColumns)
-	schedulingInsertCacheMut       sync.RWMutex
-	schedulingInsertCache          = make(map[string]insertCache)
-	schedulingUpdateCacheMut       sync.RWMutex
-	schedulingUpdateCache          = make(map[string]updateCache)
-	schedulingUpsertCacheMut       sync.RWMutex
-	schedulingUpsertCache          = make(map[string]insertCache)
+	pageSpeedType                 = reflect.TypeOf(&PageSpeed{})
+	pageSpeedMapping              = queries.MakeStructMapping(pageSpeedType)
+	pageSpeedPrimaryKeyMapping, _ = queries.BindMapping(pageSpeedType, pageSpeedMapping, pageSpeedPrimaryKeyColumns)
+	pageSpeedInsertCacheMut       sync.RWMutex
+	pageSpeedInsertCache          = make(map[string]insertCache)
+	pageSpeedUpdateCacheMut       sync.RWMutex
+	pageSpeedUpdateCache          = make(map[string]updateCache)
+	pageSpeedUpsertCacheMut       sync.RWMutex
+	pageSpeedUpsertCache          = make(map[string]insertCache)
 )
 
 var (
@@ -146,27 +146,27 @@ var (
 	_ = qmhelper.Where
 )
 
-var schedulingAfterSelectHooks []SchedulingHook
+var pageSpeedAfterSelectHooks []PageSpeedHook
 
-var schedulingBeforeInsertHooks []SchedulingHook
-var schedulingAfterInsertHooks []SchedulingHook
+var pageSpeedBeforeInsertHooks []PageSpeedHook
+var pageSpeedAfterInsertHooks []PageSpeedHook
 
-var schedulingBeforeUpdateHooks []SchedulingHook
-var schedulingAfterUpdateHooks []SchedulingHook
+var pageSpeedBeforeUpdateHooks []PageSpeedHook
+var pageSpeedAfterUpdateHooks []PageSpeedHook
 
-var schedulingBeforeDeleteHooks []SchedulingHook
-var schedulingAfterDeleteHooks []SchedulingHook
+var pageSpeedBeforeDeleteHooks []PageSpeedHook
+var pageSpeedAfterDeleteHooks []PageSpeedHook
 
-var schedulingBeforeUpsertHooks []SchedulingHook
-var schedulingAfterUpsertHooks []SchedulingHook
+var pageSpeedBeforeUpsertHooks []PageSpeedHook
+var pageSpeedAfterUpsertHooks []PageSpeedHook
 
 // doAfterSelectHooks executes all "after Select" hooks.
-func (o *Scheduling) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterSelectHooks {
+	for _, hook := range pageSpeedAfterSelectHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -176,12 +176,12 @@ func (o *Scheduling) doAfterSelectHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Scheduling) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeInsertHooks {
+	for _, hook := range pageSpeedBeforeInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -191,12 +191,12 @@ func (o *Scheduling) doBeforeInsertHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Scheduling) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterInsertHooks {
+	for _, hook := range pageSpeedAfterInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -206,12 +206,12 @@ func (o *Scheduling) doAfterInsertHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Scheduling) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeUpdateHooks {
+	for _, hook := range pageSpeedBeforeUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -221,12 +221,12 @@ func (o *Scheduling) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Scheduling) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterUpdateHooks {
+	for _, hook := range pageSpeedAfterUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -236,12 +236,12 @@ func (o *Scheduling) doAfterUpdateHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Scheduling) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeDeleteHooks {
+	for _, hook := range pageSpeedBeforeDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -251,12 +251,12 @@ func (o *Scheduling) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Scheduling) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterDeleteHooks {
+	for _, hook := range pageSpeedAfterDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -266,12 +266,12 @@ func (o *Scheduling) doAfterDeleteHooks(ctx context.Context, exec boil.ContextEx
 }
 
 // doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Scheduling) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingBeforeUpsertHooks {
+	for _, hook := range pageSpeedBeforeUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -281,12 +281,12 @@ func (o *Scheduling) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextE
 }
 
 // doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Scheduling) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *PageSpeed) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range schedulingAfterUpsertHooks {
+	for _, hook := range pageSpeedAfterUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -295,33 +295,33 @@ func (o *Scheduling) doAfterUpsertHooks(ctx context.Context, exec boil.ContextEx
 	return nil
 }
 
-// AddSchedulingHook registers your hook function for all future operations.
-func AddSchedulingHook(hookPoint boil.HookPoint, schedulingHook SchedulingHook) {
+// AddPageSpeedHook registers your hook function for all future operations.
+func AddPageSpeedHook(hookPoint boil.HookPoint, pageSpeedHook PageSpeedHook) {
 	switch hookPoint {
 	case boil.AfterSelectHook:
-		schedulingAfterSelectHooks = append(schedulingAfterSelectHooks, schedulingHook)
+		pageSpeedAfterSelectHooks = append(pageSpeedAfterSelectHooks, pageSpeedHook)
 	case boil.BeforeInsertHook:
-		schedulingBeforeInsertHooks = append(schedulingBeforeInsertHooks, schedulingHook)
+		pageSpeedBeforeInsertHooks = append(pageSpeedBeforeInsertHooks, pageSpeedHook)
 	case boil.AfterInsertHook:
-		schedulingAfterInsertHooks = append(schedulingAfterInsertHooks, schedulingHook)
+		pageSpeedAfterInsertHooks = append(pageSpeedAfterInsertHooks, pageSpeedHook)
 	case boil.BeforeUpdateHook:
-		schedulingBeforeUpdateHooks = append(schedulingBeforeUpdateHooks, schedulingHook)
+		pageSpeedBeforeUpdateHooks = append(pageSpeedBeforeUpdateHooks, pageSpeedHook)
 	case boil.AfterUpdateHook:
-		schedulingAfterUpdateHooks = append(schedulingAfterUpdateHooks, schedulingHook)
+		pageSpeedAfterUpdateHooks = append(pageSpeedAfterUpdateHooks, pageSpeedHook)
 	case boil.BeforeDeleteHook:
-		schedulingBeforeDeleteHooks = append(schedulingBeforeDeleteHooks, schedulingHook)
+		pageSpeedBeforeDeleteHooks = append(pageSpeedBeforeDeleteHooks, pageSpeedHook)
 	case boil.AfterDeleteHook:
-		schedulingAfterDeleteHooks = append(schedulingAfterDeleteHooks, schedulingHook)
+		pageSpeedAfterDeleteHooks = append(pageSpeedAfterDeleteHooks, pageSpeedHook)
 	case boil.BeforeUpsertHook:
-		schedulingBeforeUpsertHooks = append(schedulingBeforeUpsertHooks, schedulingHook)
+		pageSpeedBeforeUpsertHooks = append(pageSpeedBeforeUpsertHooks, pageSpeedHook)
 	case boil.AfterUpsertHook:
-		schedulingAfterUpsertHooks = append(schedulingAfterUpsertHooks, schedulingHook)
+		pageSpeedAfterUpsertHooks = append(pageSpeedAfterUpsertHooks, pageSpeedHook)
 	}
 }
 
-// One returns a single scheduling record from the query.
-func (q schedulingQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Scheduling, error) {
-	o := &Scheduling{}
+// One returns a single pageSpeed record from the query.
+func (q pageSpeedQuery) One(ctx context.Context, exec boil.ContextExecutor) (*PageSpeed, error) {
+	o := &PageSpeed{}
 
 	queries.SetLimit(q.Query, 1)
 
@@ -330,7 +330,7 @@ func (q schedulingQuery) One(ctx context.Context, exec boil.ContextExecutor) (*S
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: failed to execute a one query for schedulings")
+		return nil, errors.Wrap(err, "models: failed to execute a one query for page_speeds")
 	}
 
 	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
@@ -340,16 +340,16 @@ func (q schedulingQuery) One(ctx context.Context, exec boil.ContextExecutor) (*S
 	return o, nil
 }
 
-// All returns all Scheduling records from the query.
-func (q schedulingQuery) All(ctx context.Context, exec boil.ContextExecutor) (SchedulingSlice, error) {
-	var o []*Scheduling
+// All returns all PageSpeed records from the query.
+func (q pageSpeedQuery) All(ctx context.Context, exec boil.ContextExecutor) (PageSpeedSlice, error) {
+	var o []*PageSpeed
 
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
-		return nil, errors.Wrap(err, "models: failed to assign all query results to Scheduling slice")
+		return nil, errors.Wrap(err, "models: failed to assign all query results to PageSpeed slice")
 	}
 
-	if len(schedulingAfterSelectHooks) != 0 {
+	if len(pageSpeedAfterSelectHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
 				return o, err
@@ -360,8 +360,8 @@ func (q schedulingQuery) All(ctx context.Context, exec boil.ContextExecutor) (Sc
 	return o, nil
 }
 
-// Count returns the count of all Scheduling records in the query.
-func (q schedulingQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+// Count returns the count of all PageSpeed records in the query.
+func (q pageSpeedQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -369,14 +369,14 @@ func (q schedulingQuery) Count(ctx context.Context, exec boil.ContextExecutor) (
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to count schedulings rows")
+		return 0, errors.Wrap(err, "models: failed to count page_speeds rows")
 	}
 
 	return count, nil
 }
 
 // Exists checks if the row exists in the table.
-func (q schedulingQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
+func (q pageSpeedQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -385,14 +385,14 @@ func (q schedulingQuery) Exists(ctx context.Context, exec boil.ContextExecutor) 
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "models: failed to check if schedulings exists")
+		return false, errors.Wrap(err, "models: failed to check if page_speeds exists")
 	}
 
 	return count > 0, nil
 }
 
 // Project pointed to by the foreign key.
-func (o *Scheduling) Project(mods ...qm.QueryMod) projectQuery {
+func (o *PageSpeed) Project(mods ...qm.QueryMod) projectQuery {
 	queryMods := []qm.QueryMod{
 		qm.Where("\"id\" = ?", o.ProjectID),
 	}
@@ -404,20 +404,20 @@ func (o *Scheduling) Project(mods ...qm.QueryMod) projectQuery {
 
 // LoadProject allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, singular bool, maybeScheduling interface{}, mods queries.Applicator) error {
-	var slice []*Scheduling
-	var object *Scheduling
+func (pageSpeedL) LoadProject(ctx context.Context, e boil.ContextExecutor, singular bool, maybePageSpeed interface{}, mods queries.Applicator) error {
+	var slice []*PageSpeed
+	var object *PageSpeed
 
 	if singular {
-		object = maybeScheduling.(*Scheduling)
+		object = maybePageSpeed.(*PageSpeed)
 	} else {
-		slice = *maybeScheduling.(*[]*Scheduling)
+		slice = *maybePageSpeed.(*[]*PageSpeed)
 	}
 
 	args := make([]interface{}, 0, 1)
 	if singular {
 		if object.R == nil {
-			object.R = &schedulingR{}
+			object.R = &pageSpeedR{}
 		}
 		args = append(args, object.ProjectID)
 
@@ -425,7 +425,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 	Outer:
 		for _, obj := range slice {
 			if obj.R == nil {
-				obj.R = &schedulingR{}
+				obj.R = &pageSpeedR{}
 			}
 
 			for _, a := range args {
@@ -468,7 +468,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for projects")
 	}
 
-	if len(schedulingAfterSelectHooks) != 0 {
+	if len(pageSpeedAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
@@ -486,7 +486,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 		if foreign.R == nil {
 			foreign.R = &projectR{}
 		}
-		foreign.R.Schedulings = append(foreign.R.Schedulings, object)
+		foreign.R.PageSpeeds = append(foreign.R.PageSpeeds, object)
 		return nil
 	}
 
@@ -497,7 +497,7 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 				if foreign.R == nil {
 					foreign.R = &projectR{}
 				}
-				foreign.R.Schedulings = append(foreign.R.Schedulings, local)
+				foreign.R.PageSpeeds = append(foreign.R.PageSpeeds, local)
 				break
 			}
 		}
@@ -506,10 +506,10 @@ func (schedulingL) LoadProject(ctx context.Context, e boil.ContextExecutor, sing
 	return nil
 }
 
-// SetProject of the scheduling to the related item.
+// SetProject of the pageSpeed to the related item.
 // Sets o.R.Project to related.
-// Adds o to related.R.Schedulings.
-func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Project) error {
+// Adds o to related.R.PageSpeeds.
+func (o *PageSpeed) SetProject(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Project) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -518,9 +518,9 @@ func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, 
 	}
 
 	updateQuery := fmt.Sprintf(
-		"UPDATE \"schedulings\" SET %s WHERE %s",
+		"UPDATE \"page_speeds\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-		strmangle.WhereClause("\"", "\"", 2, schedulingPrimaryKeyColumns),
+		strmangle.WhereClause("\"", "\"", 2, pageSpeedPrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
 
@@ -535,7 +535,7 @@ func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, 
 
 	o.ProjectID = related.ID
 	if o.R == nil {
-		o.R = &schedulingR{
+		o.R = &pageSpeedR{
 			Project: related,
 		}
 	} else {
@@ -544,61 +544,61 @@ func (o *Scheduling) SetProject(ctx context.Context, exec boil.ContextExecutor, 
 
 	if related.R == nil {
 		related.R = &projectR{
-			Schedulings: SchedulingSlice{o},
+			PageSpeeds: PageSpeedSlice{o},
 		}
 	} else {
-		related.R.Schedulings = append(related.R.Schedulings, o)
+		related.R.PageSpeeds = append(related.R.PageSpeeds, o)
 	}
 
 	return nil
 }
 
-// Schedulings retrieves all the records using an executor.
-func Schedulings(mods ...qm.QueryMod) schedulingQuery {
-	mods = append(mods, qm.From("\"schedulings\""))
+// PageSpeeds retrieves all the records using an executor.
+func PageSpeeds(mods ...qm.QueryMod) pageSpeedQuery {
+	mods = append(mods, qm.From("\"page_speeds\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
-		queries.SetSelect(q, []string{"\"schedulings\".*"})
+		queries.SetSelect(q, []string{"\"page_speeds\".*"})
 	}
 
-	return schedulingQuery{NewQuery(mods...)}
+	return pageSpeedQuery{NewQuery(mods...)}
 }
 
-// FindScheduling retrieves a single record by ID with an executor.
+// FindPageSpeed retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindScheduling(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Scheduling, error) {
-	schedulingObj := &Scheduling{}
+func FindPageSpeed(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*PageSpeed, error) {
+	pageSpeedObj := &PageSpeed{}
 
 	sel := "*"
 	if len(selectCols) > 0 {
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"schedulings\" where \"id\"=$1", sel,
+		"select %s from \"page_speeds\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
 
-	err := q.Bind(ctx, exec, schedulingObj)
+	err := q.Bind(ctx, exec, pageSpeedObj)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: unable to select from schedulings")
+		return nil, errors.Wrap(err, "models: unable to select from page_speeds")
 	}
 
-	if err = schedulingObj.doAfterSelectHooks(ctx, exec); err != nil {
-		return schedulingObj, err
+	if err = pageSpeedObj.doAfterSelectHooks(ctx, exec); err != nil {
+		return pageSpeedObj, err
 	}
 
-	return schedulingObj, nil
+	return pageSpeedObj, nil
 }
 
 // Insert a single record using an executor.
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
-func (o *Scheduling) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
+func (o *PageSpeed) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no schedulings provided for insertion")
+		return errors.New("models: no page_speeds provided for insertion")
 	}
 
 	var err error
@@ -617,33 +617,33 @@ func (o *Scheduling) Insert(ctx context.Context, exec boil.ContextExecutor, colu
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(schedulingColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(pageSpeedColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
-	schedulingInsertCacheMut.RLock()
-	cache, cached := schedulingInsertCache[key]
-	schedulingInsertCacheMut.RUnlock()
+	pageSpeedInsertCacheMut.RLock()
+	cache, cached := pageSpeedInsertCache[key]
+	pageSpeedInsertCacheMut.RUnlock()
 
 	if !cached {
 		wl, returnColumns := columns.InsertColumnSet(
-			schedulingAllColumns,
-			schedulingColumnsWithDefault,
-			schedulingColumnsWithoutDefault,
+			pageSpeedAllColumns,
+			pageSpeedColumnsWithDefault,
+			pageSpeedColumnsWithoutDefault,
 			nzDefaults,
 		)
 
-		cache.valueMapping, err = queries.BindMapping(schedulingType, schedulingMapping, wl)
+		cache.valueMapping, err = queries.BindMapping(pageSpeedType, pageSpeedMapping, wl)
 		if err != nil {
 			return err
 		}
-		cache.retMapping, err = queries.BindMapping(schedulingType, schedulingMapping, returnColumns)
+		cache.retMapping, err = queries.BindMapping(pageSpeedType, pageSpeedMapping, returnColumns)
 		if err != nil {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"schedulings\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"page_speeds\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"schedulings\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"page_speeds\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -671,22 +671,22 @@ func (o *Scheduling) Insert(ctx context.Context, exec boil.ContextExecutor, colu
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "models: unable to insert into schedulings")
+		return errors.Wrap(err, "models: unable to insert into page_speeds")
 	}
 
 	if !cached {
-		schedulingInsertCacheMut.Lock()
-		schedulingInsertCache[key] = cache
-		schedulingInsertCacheMut.Unlock()
+		pageSpeedInsertCacheMut.Lock()
+		pageSpeedInsertCache[key] = cache
+		pageSpeedInsertCacheMut.Unlock()
 	}
 
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
-// Update uses an executor to update the Scheduling.
+// Update uses an executor to update the PageSpeed.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
-func (o *Scheduling) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+func (o *PageSpeed) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
@@ -698,28 +698,28 @@ func (o *Scheduling) Update(ctx context.Context, exec boil.ContextExecutor, colu
 		return 0, err
 	}
 	key := makeCacheKey(columns, nil)
-	schedulingUpdateCacheMut.RLock()
-	cache, cached := schedulingUpdateCache[key]
-	schedulingUpdateCacheMut.RUnlock()
+	pageSpeedUpdateCacheMut.RLock()
+	cache, cached := pageSpeedUpdateCache[key]
+	pageSpeedUpdateCacheMut.RUnlock()
 
 	if !cached {
 		wl := columns.UpdateColumnSet(
-			schedulingAllColumns,
-			schedulingPrimaryKeyColumns,
+			pageSpeedAllColumns,
+			pageSpeedPrimaryKeyColumns,
 		)
 
 		if !columns.IsWhitelist() {
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("models: unable to update schedulings, could not build whitelist")
+			return 0, errors.New("models: unable to update page_speeds, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"schedulings\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"page_speeds\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
-			strmangle.WhereClause("\"", "\"", len(wl)+1, schedulingPrimaryKeyColumns),
+			strmangle.WhereClause("\"", "\"", len(wl)+1, pageSpeedPrimaryKeyColumns),
 		)
-		cache.valueMapping, err = queries.BindMapping(schedulingType, schedulingMapping, append(wl, schedulingPrimaryKeyColumns...))
+		cache.valueMapping, err = queries.BindMapping(pageSpeedType, pageSpeedMapping, append(wl, pageSpeedPrimaryKeyColumns...))
 		if err != nil {
 			return 0, err
 		}
@@ -735,42 +735,42 @@ func (o *Scheduling) Update(ctx context.Context, exec boil.ContextExecutor, colu
 	var result sql.Result
 	result, err = exec.ExecContext(ctx, cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update schedulings row")
+		return 0, errors.Wrap(err, "models: unable to update page_speeds row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by update for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by update for page_speeds")
 	}
 
 	if !cached {
-		schedulingUpdateCacheMut.Lock()
-		schedulingUpdateCache[key] = cache
-		schedulingUpdateCacheMut.Unlock()
+		pageSpeedUpdateCacheMut.Lock()
+		pageSpeedUpdateCache[key] = cache
+		pageSpeedUpdateCacheMut.Unlock()
 	}
 
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
 // UpdateAll updates all rows with the specified column values.
-func (q schedulingQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (q pageSpeedQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all for schedulings")
+		return 0, errors.Wrap(err, "models: unable to update all for page_speeds")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for schedulings")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for page_speeds")
 	}
 
 	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
-func (o SchedulingSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (o PageSpeedSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	ln := int64(len(o))
 	if ln == 0 {
 		return 0, nil
@@ -792,13 +792,13 @@ func (o SchedulingSlice) UpdateAll(ctx context.Context, exec boil.ContextExecuto
 
 	// Append all of the primary key values for each column
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), schedulingPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), pageSpeedPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"schedulings\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"page_speeds\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, schedulingPrimaryKeyColumns, len(o)))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, pageSpeedPrimaryKeyColumns, len(o)))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -807,21 +807,21 @@ func (o SchedulingSlice) UpdateAll(ctx context.Context, exec boil.ContextExecuto
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all in scheduling slice")
+		return 0, errors.Wrap(err, "models: unable to update all in pageSpeed slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all scheduling")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all pageSpeed")
 	}
 	return rowsAff, nil
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
-func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+func (o *PageSpeed) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no schedulings provided for upsert")
+		return errors.New("models: no page_speeds provided for upsert")
 	}
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
@@ -836,7 +836,7 @@ func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(schedulingColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(pageSpeedColumnsWithDefault, o)
 
 	// Build cache key in-line uglily - mysql vs psql problems
 	buf := strmangle.GetBuffer()
@@ -866,42 +866,42 @@ func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 	key := buf.String()
 	strmangle.PutBuffer(buf)
 
-	schedulingUpsertCacheMut.RLock()
-	cache, cached := schedulingUpsertCache[key]
-	schedulingUpsertCacheMut.RUnlock()
+	pageSpeedUpsertCacheMut.RLock()
+	cache, cached := pageSpeedUpsertCache[key]
+	pageSpeedUpsertCacheMut.RUnlock()
 
 	var err error
 
 	if !cached {
 		insert, ret := insertColumns.InsertColumnSet(
-			schedulingAllColumns,
-			schedulingColumnsWithDefault,
-			schedulingColumnsWithoutDefault,
+			pageSpeedAllColumns,
+			pageSpeedColumnsWithDefault,
+			pageSpeedColumnsWithoutDefault,
 			nzDefaults,
 		)
 
 		update := updateColumns.UpdateColumnSet(
-			schedulingAllColumns,
-			schedulingPrimaryKeyColumns,
+			pageSpeedAllColumns,
+			pageSpeedPrimaryKeyColumns,
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("models: unable to upsert schedulings, could not build update column list")
+			return errors.New("models: unable to upsert page_speeds, could not build update column list")
 		}
 
 		conflict := conflictColumns
 		if len(conflict) == 0 {
-			conflict = make([]string, len(schedulingPrimaryKeyColumns))
-			copy(conflict, schedulingPrimaryKeyColumns)
+			conflict = make([]string, len(pageSpeedPrimaryKeyColumns))
+			copy(conflict, pageSpeedPrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQueryPostgres(dialect, "\"schedulings\"", updateOnConflict, ret, update, conflict, insert)
+		cache.query = buildUpsertQueryPostgres(dialect, "\"page_speeds\"", updateOnConflict, ret, update, conflict, insert)
 
-		cache.valueMapping, err = queries.BindMapping(schedulingType, schedulingMapping, insert)
+		cache.valueMapping, err = queries.BindMapping(pageSpeedType, pageSpeedMapping, insert)
 		if err != nil {
 			return err
 		}
 		if len(ret) != 0 {
-			cache.retMapping, err = queries.BindMapping(schedulingType, schedulingMapping, ret)
+			cache.retMapping, err = queries.BindMapping(pageSpeedType, pageSpeedMapping, ret)
 			if err != nil {
 				return err
 			}
@@ -929,31 +929,31 @@ func (o *Scheduling) Upsert(ctx context.Context, exec boil.ContextExecutor, upda
 		_, err = exec.ExecContext(ctx, cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "models: unable to upsert schedulings")
+		return errors.Wrap(err, "models: unable to upsert page_speeds")
 	}
 
 	if !cached {
-		schedulingUpsertCacheMut.Lock()
-		schedulingUpsertCache[key] = cache
-		schedulingUpsertCacheMut.Unlock()
+		pageSpeedUpsertCacheMut.Lock()
+		pageSpeedUpsertCache[key] = cache
+		pageSpeedUpsertCacheMut.Unlock()
 	}
 
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
-// Delete deletes a single Scheduling record with an executor.
+// Delete deletes a single PageSpeed record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Scheduling) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *PageSpeed) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
-		return 0, errors.New("models: no Scheduling provided for delete")
+		return 0, errors.New("models: no PageSpeed provided for delete")
 	}
 
 	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), schedulingPrimaryKeyMapping)
-	sql := "DELETE FROM \"schedulings\" WHERE \"id\"=$1"
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), pageSpeedPrimaryKeyMapping)
+	sql := "DELETE FROM \"page_speeds\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -962,12 +962,12 @@ func (o *Scheduling) Delete(ctx context.Context, exec boil.ContextExecutor) (int
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete from schedulings")
+		return 0, errors.Wrap(err, "models: unable to delete from page_speeds")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for page_speeds")
 	}
 
 	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
@@ -978,33 +978,33 @@ func (o *Scheduling) Delete(ctx context.Context, exec boil.ContextExecutor) (int
 }
 
 // DeleteAll deletes all matching rows.
-func (q schedulingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q pageSpeedQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
-		return 0, errors.New("models: no schedulingQuery provided for delete all")
+		return 0, errors.New("models: no pageSpeedQuery provided for delete all")
 	}
 
 	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from schedulings")
+		return 0, errors.Wrap(err, "models: unable to delete all from page_speeds")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for page_speeds")
 	}
 
 	return rowsAff, nil
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o PageSpeedSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
 
-	if len(schedulingBeforeDeleteHooks) != 0 {
+	if len(pageSpeedBeforeDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -1014,12 +1014,12 @@ func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 
 	var args []interface{}
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), schedulingPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), pageSpeedPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "DELETE FROM \"schedulings\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, schedulingPrimaryKeyColumns, len(o))
+	sql := "DELETE FROM \"page_speeds\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, pageSpeedPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1028,15 +1028,15 @@ func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from scheduling slice")
+		return 0, errors.Wrap(err, "models: unable to delete all from pageSpeed slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for schedulings")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for page_speeds")
 	}
 
-	if len(schedulingAfterDeleteHooks) != 0 {
+	if len(pageSpeedAfterDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -1049,8 +1049,8 @@ func (o SchedulingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecuto
 
 // Reload refetches the object from the database
 // using the primary keys with an executor.
-func (o *Scheduling) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindScheduling(ctx, exec, o.ID)
+func (o *PageSpeed) Reload(ctx context.Context, exec boil.ContextExecutor) error {
+	ret, err := FindPageSpeed(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -1061,26 +1061,26 @@ func (o *Scheduling) Reload(ctx context.Context, exec boil.ContextExecutor) erro
 
 // ReloadAll refetches every row with matching primary key column values
 // and overwrites the original object slice with the newly updated slice.
-func (o *SchedulingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
+func (o *PageSpeedSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
 	if o == nil || len(*o) == 0 {
 		return nil
 	}
 
-	slice := SchedulingSlice{}
+	slice := PageSpeedSlice{}
 	var args []interface{}
 	for _, obj := range *o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), schedulingPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), pageSpeedPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"schedulings\".* FROM \"schedulings\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, schedulingPrimaryKeyColumns, len(*o))
+	sql := "SELECT \"page_speeds\".* FROM \"page_speeds\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, pageSpeedPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
 	err := q.Bind(ctx, exec, &slice)
 	if err != nil {
-		return errors.Wrap(err, "models: unable to reload all in SchedulingSlice")
+		return errors.Wrap(err, "models: unable to reload all in PageSpeedSlice")
 	}
 
 	*o = slice
@@ -1088,10 +1088,10 @@ func (o *SchedulingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecut
 	return nil
 }
 
-// SchedulingExists checks if the Scheduling row exists.
-func SchedulingExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
+// PageSpeedExists checks if the PageSpeed row exists.
+func PageSpeedExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"schedulings\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"page_speeds\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1102,7 +1102,7 @@ func SchedulingExists(ctx context.Context, exec boil.ContextExecutor, iD int) (b
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "models: unable to check if schedulings exists")
+		return false, errors.Wrap(err, "models: unable to check if page_speeds exists")
 	}
 
 	return exists, nil

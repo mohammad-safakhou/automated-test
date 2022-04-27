@@ -17,12 +17,12 @@ type EndpointTaskHandler struct {
 }
 
 func (c *EndpointTaskHandler) ProcessTask(ctx context.Context, t *asynq.Task) error {
-	var payload usecase_models.EndpointRequest
+	var payload usecase_models.Endpoints
 	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
 		return fmt.Errorf("json.Unmarshal failed on endpoint task: %v: %w", err, asynq.SkipRetry)
 	}
 
-	err := c.EndpointHandler.ExecuteRule(ctx, payload)
+	err := c.EndpointHandler.ExecuteEndpointRule(ctx, payload)
 	if err != nil {
 		c.Logger.Info(err)
 		return fmt.Errorf("executing rule on endpoint task: %v", err)
