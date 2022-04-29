@@ -68,14 +68,26 @@ var consumeTasksCmd = &cobra.Command{
 		taskPusher := push.NewTaskPush(asynqClient)
 
 		endpointRepo := repos.NewEndpointRepository(psqlDb)
+		netCatRepo := repos.NewNetCatRepository(psqlDb)
+		pageSpeedRepo := repos.NewPageSpeedRepository(psqlDb)
+		pingRepo := repos.NewPingRepository(psqlDb)
+		traceRouteRepo := repos.NewTraceRouteRepository(psqlDb)
 		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 
 		agentHandler := handlers.NewAgentHandler()
 		endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
+		netCatHandler := handlers.NewNetCatHandler(netCatRepo, dataCenterRepo, taskPusher, agentHandler)
+		pageSpeedHandler := handlers.NewPageSpeedHandler(pageSpeedRepo, dataCenterRepo, taskPusher, agentHandler)
+		pingHandler := handlers.NewPingHandler(pingRepo, dataCenterRepo, taskPusher, agentHandler)
+		traceRouteHandler := handlers.NewTraceRouteHandler(traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
 
 		mux := asynq.NewServeMux()
 		// handlers
 		mux.Handle(task_models.TypeEndpoint, tasks.NewEndpointTaskHandler(endpointHandler, zLogger))
+		mux.Handle(task_models.TypeNetCats, tasks.NewNetCatTaskHandler(netCatHandler, zLogger))
+		mux.Handle(task_models.TypePageSpeeds, tasks.NewPageSpeedTaskHandler(pageSpeedHandler, zLogger))
+		mux.Handle(task_models.TypePings, tasks.NewPingTaskHandler(pingHandler, zLogger))
+		mux.Handle(task_models.TypeTraceRoutes, tasks.NewTraceRouteTaskHandler(traceRouteHandler, zLogger))
 
 		if err := srv.Run(mux); err != nil {
 			zLogger.Fatalf("cant start server: %s", err)

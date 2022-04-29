@@ -76,7 +76,7 @@ func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules
 
 				dataCenter, err := e.dataCentersRepo.GetDataCenters(ctx, dataCenter)
 				if err != nil {
-					log.Info("error on getting data center in executing rule: ", err)
+					log.Info("error on getting data center in executing endpoint rule: ", err)
 					waitGroup.Done()
 					return
 				}
@@ -97,7 +97,7 @@ func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules
 					waitGroup.Done()
 					return
 				}
-				if !acceptanceCriteria(respStatus, respBody, rule.AcceptanceModel) {
+				if !curlAcceptanceCriteria(respStatus, []byte(respBody), rule.AcceptanceModel) {
 					// TODO: send alert
 					break
 				}
@@ -112,7 +112,7 @@ func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules
 	return nil
 }
 
-func acceptanceCriteria(status string, body []byte, acceptRules usecase_models.AcceptanceModel) bool {
+func curlAcceptanceCriteria(status string, body []byte, acceptRules usecase_models.AcceptanceModel) bool {
 	statusCheck := false
 	for _, val := range acceptRules.Statuses {
 		if val == status {
