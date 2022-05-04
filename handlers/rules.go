@@ -11,7 +11,7 @@ import (
 )
 
 type RulesHandler interface {
-	RegisterRules(ctx context.Context, rules usecase_models.RulesRequest, projectId int) error
+	RegisterRules(ctx context.Context, rules usecase_models.RulesRequest) error
 }
 
 type rulesHandler struct {
@@ -25,17 +25,35 @@ type rulesHandler struct {
 	agentHandler    AgentHandler
 }
 
-func NewRulesHandler() RulesHandler {
-	return &rulesHandler{}
+func NewRulesHandler(
+	endpointRepo repos.EndpointRepository,
+	netCatRepo repos.NetCatRepository,
+	pageSpeedRepo repos.PageSpeedRepository,
+	pingRepo repos.PingRepository,
+	traceRouteRepo repos.TraceRouteRepository,
+	dataCentersRepo repos.DataCentersRepository,
+	taskPusher push.TaskPusher,
+	agentHandler AgentHandler,
+) RulesHandler {
+	return &rulesHandler{
+		endpointRepo:    endpointRepo,
+		netCatRepo:      netCatRepo,
+		pageSpeedRepo:   pageSpeedRepo,
+		pingRepo:        pingRepo,
+		traceRouteRepo:  traceRouteRepo,
+		dataCentersRepo: dataCentersRepo,
+		taskPusher:      taskPusher,
+		agentHandler:    agentHandler,
+	}
 }
 
-func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.RulesRequest, projectId int) error {
+func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.RulesRequest) error {
 	if len(rules.Endpoints.Endpoints) != 0 {
 		j, _ := json.Marshal(rules.Endpoints)
 		rulesStr := string(j)
 		_, err := r.endpointRepo.SaveEndpoint(ctx, models.Endpoint{
 			Data:      null.NewString(rulesStr, true),
-			ProjectID: projectId,
+			ProjectID: rules.Endpoints.Scheduling.ProjectId,
 		})
 		if err != nil {
 			return err
@@ -46,7 +64,7 @@ func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.R
 		rulesStr := string(j)
 		_, err := r.netCatRepo.SaveNetCat(ctx, models.NetCat{
 			Data:      null.NewString(rulesStr, true),
-			ProjectID: projectId,
+			ProjectID: rules.NetCats.Scheduling.ProjectId,
 		})
 		if err != nil {
 			return err
@@ -57,7 +75,7 @@ func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.R
 		rulesStr := string(j)
 		_, err := r.pageSpeedRepo.SavePageSpeed(ctx, models.PageSpeed{
 			Data:      null.NewString(rulesStr, true),
-			ProjectID: projectId,
+			ProjectID: rules.PageSpeed.Scheduling.ProjectId,
 		})
 		if err != nil {
 			return err
@@ -68,7 +86,7 @@ func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.R
 		rulesStr := string(j)
 		_, err := r.pingRepo.SavePing(ctx, models.Ping{
 			Data:      null.NewString(rulesStr, true),
-			ProjectID: projectId,
+			ProjectID: rules.Pings.Scheduling.ProjectId,
 		})
 		if err != nil {
 			return err
@@ -79,7 +97,7 @@ func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.R
 		rulesStr := string(j)
 		_, err := r.traceRouteRepo.SaveTraceRoute(ctx, models.TraceRoute{
 			Data:      null.NewString(rulesStr, true),
-			ProjectID: projectId,
+			ProjectID: rules.TraceRoutes.Scheduling.ProjectId,
 		})
 		if err != nil {
 			return err

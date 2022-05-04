@@ -21,6 +21,10 @@ var (
 	// list of queues associated with priority, large numbers indicate higher priority
 	queues = map[string]int{
 		task_models.QueueEndpoint: 6,
+		task_models.QueueNetCats: 6,
+		task_models.QueuePageSpeeds: 6,
+		task_models.QueuePings: 6,
+		task_models.QueueTraceRoutes: 6,
 	}
 )
 

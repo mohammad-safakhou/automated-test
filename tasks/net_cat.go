@@ -28,6 +28,7 @@ func (c *NetCatTaskHandler) ProcessTask(ctx context.Context, t *asynq.Task) erro
 		return fmt.Errorf("executing rule on NetCat task: %v", err)
 	}
 
+	c.Logger.Info("success on processing net cat task")
 	return nil
 }
 

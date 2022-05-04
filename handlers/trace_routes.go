@@ -53,6 +53,7 @@ func (e *traceRouteHandler) ExecuteTraceRouteRule(ctx context.Context, traceRout
 					break
 				}
 			}
+			waitGroup.Done()
 		}(dataC)
 	}
 

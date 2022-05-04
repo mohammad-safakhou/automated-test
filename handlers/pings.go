@@ -53,6 +53,7 @@ func (e *pingHandler) ExecutePingRule(ctx context.Context, pingRules usecase_mod
 					break
 				}
 			}
+			waitGroup.Done()
 		}(dataC)
 	}
 

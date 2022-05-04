@@ -28,6 +28,7 @@ func (c *TraceRouteTaskHandler) ProcessTask(ctx context.Context, t *asynq.Task) 
 		return fmt.Errorf("executing rule on TraceRoute task: %v", err)
 	}
 
+	c.Logger.Info("success on processing trace route task")
 	return nil
 }
 

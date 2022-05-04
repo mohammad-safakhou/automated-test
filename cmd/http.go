@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"github.com/hibiken/asynq"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
@@ -10,6 +11,9 @@ import (
 	"os"
 	"os/signal"
 	"test-manager/handlers"
+	"test-manager/repos"
+	"test-manager/tasks/push"
+	"test-manager/utils"
 	"time"
 )
 
@@ -29,34 +33,38 @@ var httpCmd = &cobra.Command{
 			AllowOrigins: []string{"*"},
 			AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 		}))
-		//
-		//redisClient, err := utils.CreateRedisConnection(context.TODO(), "localhost", "6379", 3*time.Second)
-		//if err != nil {
-		//	panic(err)
-		//}
-		//
-		//psqlDb, err := utils.PostgresConnection("localhost", "5432", "root", "root", "tester", "disable")
-		//if err != nil {
-		//	panic(err)
-		//}
-		//asynqClient := asynq.NewClient(asynq.RedisClientOpt{
-		//	Addr:        redisClient.Options().Addr,
-		//	DialTimeout: redisClient.Options().DialTimeout,
-		//	Username:    redisClient.Options().Username,
-		//	Password:    redisClient.Options().Password,
-		//})
-		//taskPusher := push.NewTaskPush(asynqClient)
-		//
-		//endpointRepo := repos.NewEndpointRepository(psqlDb)
-		//dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
-		//
-		//agentHandler := handlers.NewAgentHandler()
+
+		redisClient, err := utils.CreateRedisConnection(context.TODO(), "localhost", "6379", 3*time.Second)
+		if err != nil {
+			panic(err)
+		}
+
+		psqlDb, err := utils.PostgresConnection("localhost", "5432", "root", "root", "tester", "disable")
+		if err != nil {
+			panic(err)
+		}
+		asynqClient := asynq.NewClient(asynq.RedisClientOpt{
+			Addr:        redisClient.Options().Addr,
+			DialTimeout: redisClient.Options().DialTimeout,
+			Username:    redisClient.Options().Username,
+			Password:    redisClient.Options().Password,
+		})
+		taskPusher := push.NewTaskPush(asynqClient)
+
+		endpointRepo := repos.NewEndpointRepository(psqlDb)
+		netCatRepo := repos.NewNetCatRepository(psqlDb)
+		pageSpeedRepo := repos.NewPageSpeedRepository(psqlDb)
+		pingRepo := repos.NewPingRepository(psqlDb)
+		traceRouteRepo := repos.NewTraceRouteRepository(psqlDb)
+		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
+
+		agentHandler := handlers.NewAgentHandler()
 		//endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
-		ruleHandler := handlers.NewRulesHandler()
+		ruleHandler := handlers.NewRulesHandler(endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
 		controllers := handlers.NewHttpControllers(ruleHandler)
 
 		e.GET("/", controllers.Hello)
-		e.POST("/endpoint/register/:project_id", controllers.RegisterRules)
+		e.POST("/rules/register", controllers.RegisterRules)
 
 		// Start server
 		go func() {

@@ -28,6 +28,7 @@ func (c *EndpointTaskHandler) ProcessTask(ctx context.Context, t *asynq.Task) er
 		return fmt.Errorf("executing rule on endpoint task: %v", err)
 	}
 
+	c.Logger.Info("success on processing endpoint task")
 	return nil
 }
 

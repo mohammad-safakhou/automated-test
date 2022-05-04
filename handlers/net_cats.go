@@ -54,6 +54,7 @@ func (e *netCatHandler) ExecuteNetCatRule(ctx context.Context, netCatRules useca
 					break
 				}
 			}
+			waitGroup.Done()
 		}(dataC)
 	}
 

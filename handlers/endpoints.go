@@ -105,6 +105,7 @@ func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules
 				responses.BodyResponses[rule.ID] = string(respBody)
 				responses.HeaderResponses[rule.ID] = respHeader
 			}
+			waitGroup.Done()
 		}(dataC)
 	}
 

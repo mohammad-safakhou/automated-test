@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strconv"
 	"test-manager/usecase_models"
 )
 
@@ -30,12 +29,8 @@ func (hc *httpControllers) RegisterRules(ctx echo.Context) error {
 	if err := ctx.Bind(req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
-	projectId, err := strconv.Atoi(ctx.Param("project_id"))
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, err.Error())
-	}
 
-	err = hc.rulesHandler.RegisterRules(context.TODO(), *req, projectId)
+	err := hc.rulesHandler.RegisterRules(context.TODO(), *req)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err.Error())
 	}

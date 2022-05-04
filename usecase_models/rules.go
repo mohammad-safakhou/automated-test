@@ -5,7 +5,7 @@ type RulesRequest struct {
 	TraceRoutes TraceRoutes `json:"trace_routes"`
 	NetCats     NetCats     `json:"net_cats"`
 	Pings       Pings       `json:"pings"`
-	PageSpeed   PageSpeed   `json:"page_speed"`
+	PageSpeed   PageSpeed   `json:"page_speeds"`
 }
 
 type Endpoints struct {
@@ -14,7 +14,7 @@ type Endpoints struct {
 }
 
 type TraceRoutes struct {
-	TraceRouts []TraceRouteRules `json:"trace_route"`
+	TraceRouts []TraceRouteRules `json:"trace_routes"`
 	Scheduling Scheduling        `json:"scheduling"`
 }
 
@@ -29,6 +29,6 @@ type Pings struct {
 }
 
 type PageSpeed struct {
-	PageSpeed  []PageSpeedRules `json:"page_speed"`
+	PageSpeed  []PageSpeedRules `json:"page_speeds"`
 	Scheduling Scheduling       `json:"scheduling"`
 }

@@ -51,6 +51,7 @@ func (e *pageSpeedHandler) ExecutePageSpeedRule(ctx context.Context, pageSpeedRu
 					break
 				}
 			}
+			waitGroup.Done()
 		}(dataC)
 	}
 

@@ -28,6 +28,7 @@ func (c *PingTaskHandler) ProcessTask(ctx context.Context, t *asynq.Task) error 
 		return fmt.Errorf("executing rule on Ping task: %v", err)
 	}
 
+	c.Logger.Info("success on processing ping task")
 	return nil
 }
 

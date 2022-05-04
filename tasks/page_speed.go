@@ -28,6 +28,7 @@ func (c *PageSpeedTaskHandler) ProcessTask(ctx context.Context, t *asynq.Task) e
 		return fmt.Errorf("executing rule on PageSpeed task: %v", err)
 	}
 
+	c.Logger.Info("success on processing page speed task")
 	return nil
 }
 
