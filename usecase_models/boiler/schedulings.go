@@ -564,7 +564,7 @@ func Schedulings(mods ...qm.QueryMod) schedulingQuery {
 	return schedulingQuery{NewQuery(mods...)}
 }
 
-// FindScheduling retrieves a single record by ID with an executor.
+// FindScheduling retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindScheduling(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Scheduling, error) {
 	schedulingObj := &Scheduling{}

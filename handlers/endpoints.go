@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"test-manager/repos"
+	"test-manager/repos/influx"
 	"test-manager/tasks/push"
 	"test-manager/usecase_models"
 )
@@ -18,14 +19,15 @@ type EndpointHandler interface {
 }
 
 type endpointHandler struct {
-	endpointRepo    repos.EndpointRepository
-	dataCentersRepo repos.DataCentersRepository
-	taskPusher      push.TaskPusher
-	agentHandler    AgentHandler
+	endpointRepo       repos.EndpointRepository
+	dataCentersRepo    repos.DataCentersRepository
+	endpointReportRepo influx.EndpointReportRepository
+	taskPusher         push.TaskPusher
+	agentHandler       AgentHandler
 }
 
-func NewEndpointHandler(endpointRepo repos.EndpointRepository, dataCentersRepo repos.DataCentersRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) EndpointHandler {
-	return &endpointHandler{endpointRepo: endpointRepo, dataCentersRepo: dataCentersRepo, taskPusher: taskPusher, agentHandler: agentHandler}
+func NewEndpointHandler(endpointRepo repos.EndpointRepository, dataCentersRepo repos.DataCentersRepository, endpointReportRepo influx.EndpointReportRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) EndpointHandler {
+	return &endpointHandler{endpointRepo: endpointRepo, dataCentersRepo: dataCentersRepo, endpointReportRepo: endpointReportRepo, taskPusher: taskPusher, agentHandler: agentHandler}
 }
 
 func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules usecase_models.Endpoints) error {
@@ -86,7 +88,7 @@ func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules
 					newHeader[key] = strings.Split(val, ",")
 				}
 
-				respBody, respHeader, respStatus, err := e.agentHandler.SendCurl(ctx, dataCenter.Baseurl, usecase_models.AgentCurlRequest{
+				respBody, respHeader, respStatus, respTime, err := e.agentHandler.SendCurl(ctx, dataCenter.Baseurl, usecase_models.AgentCurlRequest{
 					Url:    rule.Url,
 					Method: rule.Method,
 					Header: newHeader,
@@ -98,12 +100,20 @@ func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules
 					return
 				}
 				if !curlAcceptanceCriteria(respStatus, []byte(respBody), rule.AcceptanceModel) {
+					err := e.endpointReportRepo.WriteEndpointReport(ctx, endpointRules.Scheduling.ProjectId, endpointRules.Scheduling.PipelineId, 0, respTime)
+					if err != nil {
+						log.Info("error on writing curl report in executing rule: ", err)
+					}
 					// TODO: send alert
 					break
 				}
+				err = e.endpointReportRepo.WriteEndpointReport(ctx, endpointRules.Scheduling.ProjectId, endpointRules.Scheduling.PipelineId, 1, respTime)
+				if err != nil {
+					log.Info("error on writing curl report in executing rule: ", err)
+				}
 
-				responses.BodyResponses[rule.ID] = string(respBody)
-				responses.HeaderResponses[rule.ID] = respHeader
+				responses.BodyResponses[rule.SequenceId] = string(respBody)
+				responses.HeaderResponses[rule.SequenceId] = respHeader
 			}
 			waitGroup.Done()
 		}(dataC)
@@ -150,7 +160,7 @@ func curlAcceptanceCriteria(status string, body []byte, acceptRules usecase_mode
 
 func getEndpoint(id int, endpointRules []usecase_models.EndpointRules) (usecase_models.EndpointRules, error) {
 	for _, rule := range endpointRules {
-		if rule.ID == id {
+		if rule.SequenceId == id {
 			return rule, nil
 		}
 	}

@@ -51,10 +51,11 @@ func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.R
 	if len(rules.Endpoints.Endpoints) != 0 {
 		j, _ := json.Marshal(rules.Endpoints)
 		rulesStr := string(j)
-		_, err := r.endpointRepo.SaveEndpoint(ctx, models.Endpoint{
+		endpointId, err := r.endpointRepo.SaveEndpoint(ctx, models.Endpoint{
 			Data:      null.NewString(rulesStr, true),
 			ProjectID: rules.Endpoints.Scheduling.ProjectId,
 		})
+		rules.Endpoints.Scheduling.PipelineId = endpointId
 		if err != nil {
 			return err
 		}

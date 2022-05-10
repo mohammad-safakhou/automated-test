@@ -564,7 +564,7 @@ func PageSpeeds(mods ...qm.QueryMod) pageSpeedQuery {
 	return pageSpeedQuery{NewQuery(mods...)}
 }
 
-// FindPageSpeed retrieves a single record by ID with an executor.
+// FindPageSpeed retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindPageSpeed(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*PageSpeed, error) {
 	pageSpeedObj := &PageSpeed{}

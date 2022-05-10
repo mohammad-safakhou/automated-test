@@ -564,7 +564,7 @@ func Pings(mods ...qm.QueryMod) pingQuery {
 	return pingQuery{NewQuery(mods...)}
 }
 
-// FindPing retrieves a single record by ID with an executor.
+// FindPing retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindPing(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Ping, error) {
 	pingObj := &Ping{}

@@ -830,7 +830,7 @@ func Endpoints(mods ...qm.QueryMod) endpointQuery {
 	return endpointQuery{NewQuery(mods...)}
 }
 
-// FindEndpoint retrieves a single record by ID with an executor.
+// FindEndpoint retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindEndpoint(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Endpoint, error) {
 	endpointObj := &Endpoint{}

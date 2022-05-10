@@ -1,8 +1,7 @@
 package usecase_models
 
-
 type EndpointRules struct {
-	ID               int               `json:"id"`
+	SequenceId       int               `json:"sequence_id"`
 	Url              string            `json:"url"`
 	Method           string            `json:"method"`
 	Body             string            `json:"body"`

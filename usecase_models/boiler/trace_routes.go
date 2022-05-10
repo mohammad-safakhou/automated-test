@@ -564,7 +564,7 @@ func TraceRoutes(mods ...qm.QueryMod) traceRouteQuery {
 	return traceRouteQuery{NewQuery(mods...)}
 }
 
-// FindTraceRoute retrieves a single record by ID with an executor.
+// FindTraceRoute retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindTraceRoute(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*TraceRoute, error) {
 	traceRouteObj := &TraceRoute{}

@@ -9,9 +9,10 @@ type AgentCurlRequest struct {
 
 type AgentCurlResponse struct {
 	Statistics struct {
-		StatusCode string              `json:"status_code"`
-		Header     map[string][]string `json:"header"`
-		Body       string              `json:"body"`
+		ResponseTime float64             `json:"response_time"`
+		StatusCode   string              `json:"status_code"`
+		Header       map[string][]string `json:"header"`
+		Body         string              `json:"body"`
 	} `json:"statistics"`
 }
 

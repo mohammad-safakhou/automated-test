@@ -564,7 +564,7 @@ func NetCats(mods ...qm.QueryMod) netCatQuery {
 	return netCatQuery{NewQuery(mods...)}
 }
 
-// FindNetCat retrieves a single record by ID with an executor.
+// FindNetCat retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindNetCat(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*NetCat, error) {
 	netCatObj := &NetCat{}

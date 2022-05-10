@@ -10,7 +10,7 @@ import (
 )
 
 type AgentHandler interface {
-	SendCurl(ctx context.Context, dataCenterUrl string, request usecase_models.AgentCurlRequest) (response string, responseHeader map[string][]string, status string, err error)
+	SendCurl(ctx context.Context, dataCenterUrl string, request usecase_models.AgentCurlRequest) (response string, responseHeader map[string][]string, status string, responseTime float64, err error)
 	SendNetCat(ctx context.Context, dataCenterUrl string, request usecase_models.AgentNetCatRequest) (response usecase_models.AgentNetCatResponse, err error)
 	SendPageSpeed(ctx context.Context, dataCenterUrl string, request usecase_models.AgentPageSpeedRequest) (response usecase_models.AgentPageSpeedResponse, err error)
 	SendPing(ctx context.Context, dataCenterUrl string, request usecase_models.AgentPingRequest) (response usecase_models.AgentPingResponse, err error)
@@ -24,7 +24,7 @@ func NewAgentHandler() AgentHandler {
 	return &agentHandler{}
 }
 
-func (a *agentHandler) SendCurl(ctx context.Context, dataCenterUrl string, request usecase_models.AgentCurlRequest) (response string, responseHeader map[string][]string, status string, err error) {
+func (a *agentHandler) SendCurl(ctx context.Context, dataCenterUrl string, request usecase_models.AgentCurlRequest) (response string, responseHeader map[string][]string, status string, responseTime float64, err error) {
 	reqB, _ := json.Marshal(request)
 	req, err := http.NewRequestWithContext(ctx, "POST", dataCenterUrl+"/v1/curl", bytes.NewBuffer(reqB))
 	if err != nil {
@@ -35,7 +35,7 @@ func (a *agentHandler) SendCurl(ctx context.Context, dataCenterUrl string, reque
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return response, responseHeader, status, err
+		return response, responseHeader, status, responseTime, err
 	}
 	defer resp.Body.Close()
 	respBody, _ := ioutil.ReadAll(resp.Body)
@@ -43,9 +43,9 @@ func (a *agentHandler) SendCurl(ctx context.Context, dataCenterUrl string, reque
 	var respM usecase_models.AgentCurlResponse
 	err = json.Unmarshal(respBody, &respM)
 	if err != nil {
-		return response, responseHeader, status, err
+		return response, responseHeader, status, responseTime, err
 	}
-	return respM.Statistics.Body, respM.Statistics.Header, respM.Statistics.StatusCode, nil
+	return respM.Statistics.Body, respM.Statistics.Header, respM.Statistics.StatusCode, respM.Statistics.ResponseTime, nil
 }
 
 func (a *agentHandler) SendNetCat(ctx context.Context, dataCenterUrl string, request usecase_models.AgentNetCatRequest) (response usecase_models.AgentNetCatResponse, err error) {

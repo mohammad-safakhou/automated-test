@@ -763,7 +763,7 @@ func Datacenters(mods ...qm.QueryMod) datacenterQuery {
 	return datacenterQuery{NewQuery(mods...)}
 }
 
-// FindDatacenter retrieves a single record by ID with an executor.
+// FindDatacenter retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindDatacenter(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Datacenter, error) {
 	datacenterObj := &Datacenter{}

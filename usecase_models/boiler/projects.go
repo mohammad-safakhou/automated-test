@@ -1438,7 +1438,7 @@ func Projects(mods ...qm.QueryMod) projectQuery {
 	return projectQuery{NewQuery(mods...)}
 }
 
-// FindProject retrieves a single record by ID with an executor.
+// FindProject retrieves a single record by SequenceId with an executor.
 // If selectCols is empty Find will return all columns.
 func FindProject(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Project, error) {
 	projectObj := &Project{}

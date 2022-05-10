@@ -9,7 +9,7 @@ import (
 
 type EndpointRepository interface {
 	UpdateEndpoint(ctx context.Context, endpoint models.Endpoint) error
-	GetEndpoint(ctx context.Context, projectId int) (models.Endpoint, error)
+	GetEndpoint(ctx context.Context, projectId int) ([]*models.Endpoint, error)
 	SaveEndpoint(ctx context.Context, endpoint models.Endpoint) (int, error)
 }
 
@@ -37,10 +37,10 @@ func (r *endpointRepository) UpdateEndpoint(ctx context.Context, endpoint models
 	return nil
 }
 
-func (r *endpointRepository) GetEndpoint(ctx context.Context, projectId int) (models.Endpoint, error) {
-	endpoint, err := models.Endpoints(models.EndpointWhere.ProjectID.EQ(projectId)).One(ctx, r.db)
+func (r *endpointRepository) GetEndpoint(ctx context.Context, projectId int) ([]*models.Endpoint, error) {
+	endpoints, err := models.Endpoints(models.EndpointWhere.ProjectID.EQ(projectId)).All(ctx, r.db)
 	if err != nil {
-		return models.Endpoint{}, err
+		return []*models.Endpoint{}, err
 	}
-	return *endpoint, nil
+	return endpoints, nil
 }
