@@ -9,7 +9,7 @@ import (
 
 func Temp() {
 	url := "http://localhost:8086"
-	token := "I0B3yPC-XsAPDT35wxQgKX6GOKFIPaGdfz8t8kfELkqHjZz-yszZ_IaSyBTRMj5Ew8cijrOjp8_KU9VfNz71Tw=="
+	token := "EEPjW1onUpQlhPy5bAL-SwQkE_AkI57KY4RBtNak13qk5ODuhjH9zuabMMGy7GPBhZw383eplNXoy3j5HfpArg=="
 	org := "test"
 	bucket := "my-bucket"
 
@@ -18,11 +18,14 @@ func Temp() {
 	writeAPI := client.WriteAPIBlocking(org, bucket)
 	queryAPI := client.QueryAPI(org)
 
-	p := influxdb2.NewPoint("stat",
-		map[string]string{"unit": "temperature"},
-		map[string]interface{}{"avg": 24.5, "max": 45},
+	p := influxdb2.NewPoint("endpoint",
+		map[string]string{"project_id": "1"},
+		map[string]interface{}{"success": 1},
 		time.Now())
-	writeAPI.WritePoint(context.Background(), p)
+	err := writeAPI.WritePoint(context.Background(), p)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	client.Close()
 
 	result, err := queryAPI.Query(context.Background(), `from(bucket:"my-bucket")
