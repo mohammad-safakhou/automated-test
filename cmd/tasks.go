@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hibiken/asynq"
-	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/spf13/cobra"
-	"math/rand"
 	"test-manager/handlers"
 	"test-manager/repos"
 	"test-manager/repos/influx"
@@ -74,7 +72,7 @@ var consumeTasksCmd = &cobra.Command{
 			Password:    redisClient.Options().Password,
 		})
 		taskPusher := push.NewTaskPush(asynqClient)
-		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "EEPjW1onUpQlhPy5bAL-SwQkE_AkI57KY4RBtNak13qk5ODuhjH9zuabMMGy7GPBhZw383eplNXoy3j5HfpArg==", "http://localhost:8086", "test", "my-bucket")
+		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "4xBG_YaCrjba0irFmw5CIAGtPPb5RtSlY0NXFVqVIvSCfcGIqWZn1U2-9SDuHxeJ2hVrR7Pscwu0YscxoHm9XA==", "http://localhost:8086", "test", "my-bucket")
 		if err != nil {
 			panic(err)
 		}
@@ -88,24 +86,24 @@ var consumeTasksCmd = &cobra.Command{
 		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 		endpointReportRepo := influx.NewEndpointReportRepository(writeAPI, queryAPI, psqlDb)
 
-		for {
-			st := 0
-			x := rand.Intn(500)
-			if x >= 250 {
-				st = 1
-			} else {
-				st = 0
-			}
-			p := influxdb2.NewPoint("endpoint",
-				map[string]string{"project_id": "1", "pipeline_id": "1"},
-				map[string]interface{}{"success": st, "response_time": x},
-				time.Now())
-			err = writeAPI.WritePoint(context.Background(), p)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-			time.Sleep(5 * time.Second)
-		}
+		//for {
+		//	st := 0
+		//	x := rand.Intn(500)
+		//	if x >= 250 {
+		//		st = 1
+		//	} else {
+		//		st = 0
+		//	}
+		//	p := influxdb2.NewPoint("endpoint",
+		//		map[string]string{"project_id": "1", "pipeline_id": "1"},
+		//		map[string]interface{}{"success": st, "response_time": x},
+		//		time.Now())
+		//	err = writeAPI.WritePoint(context.Background(), p)
+		//	if err != nil {
+		//		fmt.Println(err.Error())
+		//	}
+		//	time.Sleep(5 * time.Second)
+		//}
 		go func() {
 			for {
 				err, res := endpointReportRepo.ReadEndpointReportByProject(context.TODO(), 1, 1, "1h", []string{})

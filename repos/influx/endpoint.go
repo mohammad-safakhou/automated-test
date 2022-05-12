@@ -13,7 +13,6 @@ import (
 type EndpointReportRepository interface {
 	WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error
 	ReadEndpointReportByProject(ctx context.Context, projectId int, pipelineId int, timeFrame string, fields []string) (err error, res []interface{})
-	ReadEndpointReportByPipeline(ctx context.Context, projectId int, pipelineId int) (err error, res []interface{})
 }
 
 type endpointReportRepository struct {
@@ -39,28 +38,54 @@ func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, proj
 	return nil
 }
 
+type Points struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Context, projectId int, pipelineId int, timeFrame string, fields []string) (err error, res []interface{}) {
 	fieldsQuery := ""
 	for _, value := range fields {
 		fieldsQuery = fieldsQuery + fmt.Sprintf("or r[\"_field\" == \"%s\"", value)
 	}
 	query := ""
-	if fieldsQuery == "" {
+	if fieldsQuery != "" {
 		fieldsQuery = fieldsQuery[2:]
-		query = fmt.Sprintf(`from(bucket:"my-bucket")
+		if pipelineId != 0 {
+			query = fmt.Sprintf(`from(bucket:"my-bucket")
 		 |> range(start: -%s) 
-		|> filter(fn: (r) => r["_measurement"] == "endpoint")
-		|> filter(fn: (r) => %s)
-		|> filter(fn: (r) => r.project_id == "%s")
-		|> aggregateWindow(every: 10s, fn: last, createEmpty: false)
-		|> yield(name: "last")`, timeFrame, fieldsQuery, strconv.Itoa(projectId))
+		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => %s)
+		 |> filter(fn: (r) => r.project_id == "%s")
+		 |> filter(fn: (r) => r.pipeline_id == "%s")
+		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+		 |> yield(name: "last")`, timeFrame, fieldsQuery, strconv.Itoa(projectId), strconv.Itoa(pipelineId))
+		} else {
+			query = fmt.Sprintf(`from(bucket:"my-bucket")
+		 |> range(start: -%s) 
+		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => %s)
+		 |> filter(fn: (r) => r.project_id == "%s")
+		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+		 |> yield(name: "last")`, timeFrame, fieldsQuery, strconv.Itoa(projectId))
+		}
 	} else {
-		query = fmt.Sprintf(`from(bucket:"my-bucket")
+		if pipelineId != 0 {
+			query = fmt.Sprintf(`from(bucket:"my-bucket")
 		 |> range(start: -%s) 
-		|> filter(fn: (r) => r["_measurement"] == "endpoint")
-		|> filter(fn: (r) => r.project_id == "%s")
-		|> aggregateWindow(every: 10s, fn: last, createEmpty: false)
-		|> yield(name: "last")`, timeFrame, strconv.Itoa(projectId))
+		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => r.project_id == "%s")
+		 |> filter(fn: (r) => r.pipeline_id == "%s")
+		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+		 |> yield(name: "last")`, timeFrame, strconv.Itoa(projectId), strconv.Itoa(pipelineId))
+		} else {
+			query = fmt.Sprintf(`from(bucket:"my-bucket")
+		 |> range(start: -%s) 
+		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => r.project_id == "%s")
+		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+		 |> yield(name: "last")`, timeFrame, strconv.Itoa(projectId))
+		}
 	}
 
 	//query := fmt.Sprintf(`from(bucket:"my-bucket")
@@ -75,28 +100,8 @@ func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Conte
 
 	if err == nil {
 		for result.Next() {
-			fmt.Printf("value: %v\n", result.Record().Value())
-			res = append(res, result.Record().Value())
-		}
-		if result.Err() != nil {
-			fmt.Printf("query parsing error: %s\n", result.Err().Error())
-			return err, res
-		}
-	} else {
-		return err, res
-	}
-	return nil, res
-}
-
-func (r *endpointReportRepository) ReadEndpointReportByPipeline(ctx context.Context, projectId int, pipelineId int) (err error, res []interface{}) {
-	result, err := r.queryAPI.Query(context.Background(), `from(bucket:"my-bucket")
-    |> range(start: -1h) 
-    |> filter(fn: (r) => r._measurement == "stat")`)
-
-	if err == nil {
-		for result.Next() {
-			fmt.Printf("value: %v\n", result.Record().Value())
-			res = append(res, result.Record().Value())
+			fmt.Printf("value: %v\n", result.Record().Values())
+			res = append(res, result.Record().Values())
 		}
 		if result.Err() != nil {
 			fmt.Printf("query parsing error: %s\n", result.Err().Error())
