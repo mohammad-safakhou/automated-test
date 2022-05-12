@@ -3,6 +3,7 @@ package influx
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"strconv"
@@ -11,6 +12,8 @@ import (
 
 type EndpointReportRepository interface {
 	WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error
+	ReadEndpointReportByProject(ctx context.Context, projectId int)
+	ReadEndpointReportByPipeline(ctx context.Context, projectId int, pipelineId int)
 }
 
 type endpointReportRepository struct {
@@ -34,4 +37,46 @@ func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, proj
 		return err
 	}
 	return nil
+}
+
+func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Context, projectId int, timeFrame string) (err error, res []interface{}) {
+	result, err := r.queryAPI.Query(context.Background(), fmt.Sprintf(`from(bucket:"my-bucket")
+    |> range(start: -%s) 
+  |> filter(fn: (r) => r["_measurement"] == "endpoint")
+  |> filter(fn: (r) => r["_field"] == "avg" or r["_field"] == "max")
+  |> filter(fn: (r) => r["unit"] == "temperature")`, timeFrame, strconv.Itoa(projectId)))
+
+	if err == nil {
+		for result.Next() {
+			fmt.Printf("value: %v\n", result.Record().Value())
+			res = append(res, result.Record().Value())
+		}
+		if result.Err() != nil {
+			fmt.Printf("query parsing error: %s\n", result.Err().Error())
+			return err, res
+		}
+	} else {
+		return err, res
+	}
+	return nil, res
+}
+
+func (r *endpointReportRepository) ReadEndpointReportByPipeline(ctx context.Context, projectId int, pipelineId int) (err error, res []interface{}) {
+	result, err := r.queryAPI.Query(context.Background(), `from(bucket:"my-bucket")
+    |> range(start: -1h) 
+    |> filter(fn: (r) => r._measurement == "stat")`)
+
+	if err == nil {
+		for result.Next() {
+			fmt.Printf("value: %v\n", result.Record().Value())
+			res = append(res, result.Record().Value())
+		}
+		if result.Err() != nil {
+			fmt.Printf("query parsing error: %s\n", result.Err().Error())
+			return err, res
+		}
+	} else {
+		return err, res
+	}
+	return nil, res
 }
