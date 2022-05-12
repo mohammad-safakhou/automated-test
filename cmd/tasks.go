@@ -74,7 +74,7 @@ var consumeTasksCmd = &cobra.Command{
 			Password:    redisClient.Options().Password,
 		})
 		taskPusher := push.NewTaskPush(asynqClient)
-		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "GNDVtSQxQ_weUoyLpsWQIl_PK62ugeFJxQ2KbOP-lJZ5SRpu2cuQmkP-QQF78b_EfrI_mWrg5kxnNDDUCnMb6A==", "http://localhost:8086", "test", "my-bucket")
+		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "EEPjW1onUpQlhPy5bAL-SwQkE_AkI57KY4RBtNak13qk5ODuhjH9zuabMMGy7GPBhZw383eplNXoy3j5HfpArg==", "http://localhost:8086", "test", "my-bucket")
 		if err != nil {
 			panic(err)
 		}
@@ -108,7 +108,7 @@ var consumeTasksCmd = &cobra.Command{
 		}
 		go func() {
 			for {
-				err, res := endpointReportRepo.ReadEndpointReportByProject(context.TODO(), 1, "1h")
+				err, res := endpointReportRepo.ReadEndpointReportByProject(context.TODO(), 1, 1, "1h", []string{})
 				fmt.Println(res)
 				fmt.Println(err)
 				time.Sleep(5 * time.Second)

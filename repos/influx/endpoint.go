@@ -12,7 +12,7 @@ import (
 
 type EndpointReportRepository interface {
 	WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error
-	ReadEndpointReportByProject(ctx context.Context, projectId int, timeFrame string) (err error, res []interface{})
+	ReadEndpointReportByProject(ctx context.Context, projectId int, pipelineId int, timeFrame string, fields []string) (err error, res []interface{})
 	ReadEndpointReportByPipeline(ctx context.Context, projectId int, pipelineId int) (err error, res []interface{})
 }
 
@@ -39,22 +39,37 @@ func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, proj
 	return nil
 }
 
-func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Context, projectId int, timeFrame string) (err error, res []interface{}) {
-	//p := influxdb2.NewPoint("endpoint",
-	//	map[string]string{"project_id": "1", "pipeline_id": "1"},
-	//	map[string]interface{}{"success": 1, "response_time": "300"},
-	//	time.Now())
-	//err = r.writeAPI.WritePoint(context.Background(), p)
-	//if err != nil {
-	//	fmt.Println(err.Error())
-	//}
-	query := fmt.Sprintf(`from(bucket:"my-bucket")
-    |> range(start: -%s) 
-  |> filter(fn: (r) => r["_measurement"] == "endpoint")
-  |> filter(fn: (r) => r["_field"] == "success" or r["_field"] == "response_time")
-  |> filter(fn: (r) => r.project_id == "%s")
-  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
-  |> yield(name: "last")`, timeFrame, strconv.Itoa(projectId))
+func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Context, projectId int, pipelineId int, timeFrame string, fields []string) (err error, res []interface{}) {
+	fieldsQuery := ""
+	for _, value := range fields {
+		fieldsQuery = fieldsQuery + fmt.Sprintf("or r[\"_field\" == \"%s\"", value)
+	}
+	query := ""
+	if fieldsQuery == "" {
+		fieldsQuery = fieldsQuery[2:]
+		query = fmt.Sprintf(`from(bucket:"my-bucket")
+		 |> range(start: -%s) 
+		|> filter(fn: (r) => r["_measurement"] == "endpoint")
+		|> filter(fn: (r) => %s)
+		|> filter(fn: (r) => r.project_id == "%s")
+		|> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+		|> yield(name: "last")`, timeFrame, fieldsQuery, strconv.Itoa(projectId))
+	} else {
+		query = fmt.Sprintf(`from(bucket:"my-bucket")
+		 |> range(start: -%s) 
+		|> filter(fn: (r) => r["_measurement"] == "endpoint")
+		|> filter(fn: (r) => r.project_id == "%s")
+		|> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+		|> yield(name: "last")`, timeFrame, strconv.Itoa(projectId))
+	}
+
+	//query := fmt.Sprintf(`from(bucket:"my-bucket")
+	//  |> range(start: -%s)
+	//|> filter(fn: (r) => r["_measurement"] == "endpoint")
+	//|> filter(fn: (r) => r["_field"] == "success" or r["_field"] == "response_time")
+	//|> filter(fn: (r) => r.project_id == "%s")
+	//|> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+	//|> yield(name: "last")`, timeFrame, strconv.Itoa(projectId))
 	fmt.Println(query)
 	result, err := r.queryAPI.Query(context.Background(), query)
 
