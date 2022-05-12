@@ -4,11 +4,8 @@ package main
 
 import (
 	"test-manager/cmd"
-	"test-manager/repos/influx"
 )
 
 func main() {
-	influx.Temp()
-	return
 	cmd.Execute()
 }

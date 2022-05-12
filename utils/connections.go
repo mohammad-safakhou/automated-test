@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/influxdata/influxdb-client-go/v2/api"
+	"github.com/influxdata/influxdb-client-go/v2/domain"
 	_ "github.com/lib/pq"
 	"time"
 )
@@ -43,4 +46,21 @@ func CreateRedisConnection(ctx context.Context, host, port string, timeout time.
 	}
 
 	return client, nil
+}
+
+func CreateInfluxDBConnection(ctx context.Context, token string, url string, org string, bucket string) (influxdb2.Client, api.WriteAPIBlocking, api.QueryAPI, error) {
+	client := influxdb2.NewClient(url, token)
+	p, err := client.Ping(ctx)
+	if err != nil || !p {
+		return nil, nil, nil, err
+	}
+	h, err := client.Health(ctx)
+	if err != nil || h.Status != domain.HealthCheckStatusPass {
+		return nil, nil, nil, err
+	}
+
+	writeAPI := client.WriteAPIBlocking(org, bucket)
+	queryAPI := client.QueryAPI(org)
+
+	return client, writeAPI, queryAPI, nil
 }

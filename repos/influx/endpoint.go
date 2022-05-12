@@ -12,8 +12,8 @@ import (
 
 type EndpointReportRepository interface {
 	WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error
-	ReadEndpointReportByProject(ctx context.Context, projectId int)
-	ReadEndpointReportByPipeline(ctx context.Context, projectId int, pipelineId int)
+	ReadEndpointReportByProject(ctx context.Context, projectId int, timeFrame string) (err error, res []interface{})
+	ReadEndpointReportByPipeline(ctx context.Context, projectId int, pipelineId int) (err error, res []interface{})
 }
 
 type endpointReportRepository struct {
@@ -23,8 +23,8 @@ type endpointReportRepository struct {
 	db *sql.DB
 }
 
-func NewEndpointReportRepository(db *sql.DB) EndpointReportRepository {
-	return &endpointReportRepository{db: db}
+func NewEndpointReportRepository(writeAPI api.WriteAPIBlocking, queryAPI api.QueryAPI, db *sql.DB) EndpointReportRepository {
+	return &endpointReportRepository{writeAPI: writeAPI, queryAPI: queryAPI, db: db}
 }
 
 func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error {
@@ -40,11 +40,23 @@ func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, proj
 }
 
 func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Context, projectId int, timeFrame string) (err error, res []interface{}) {
-	result, err := r.queryAPI.Query(context.Background(), fmt.Sprintf(`from(bucket:"my-bucket")
+	//p := influxdb2.NewPoint("endpoint",
+	//	map[string]string{"project_id": "1", "pipeline_id": "1"},
+	//	map[string]interface{}{"success": 1, "response_time": "300"},
+	//	time.Now())
+	//err = r.writeAPI.WritePoint(context.Background(), p)
+	//if err != nil {
+	//	fmt.Println(err.Error())
+	//}
+	query := fmt.Sprintf(`from(bucket:"my-bucket")
     |> range(start: -%s) 
   |> filter(fn: (r) => r["_measurement"] == "endpoint")
-  |> filter(fn: (r) => r["_field"] == "avg" or r["_field"] == "max")
-  |> filter(fn: (r) => r["unit"] == "temperature")`, timeFrame, strconv.Itoa(projectId)))
+  |> filter(fn: (r) => r["_field"] == "success" or r["_field"] == "response_time")
+  |> filter(fn: (r) => r.project_id == "%s")
+  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+  |> yield(name: "last")`, timeFrame, strconv.Itoa(projectId))
+	fmt.Println(query)
+	result, err := r.queryAPI.Query(context.Background(), query)
 
 	if err == nil {
 		for result.Next() {
