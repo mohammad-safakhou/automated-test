@@ -46,7 +46,7 @@ type Points struct {
 func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Context, projectId int, pipelineId int, timeFrame string, fields []string) (err error, res []interface{}) {
 	fieldsQuery := ""
 	for _, value := range fields {
-		fieldsQuery = fieldsQuery + fmt.Sprintf("or r[\"_field\" == \"%s\"", value)
+		fieldsQuery = fieldsQuery + fmt.Sprintf("or r[\"_field\"] == \"%s\"", value)
 	}
 	query := ""
 	if fieldsQuery != "" {

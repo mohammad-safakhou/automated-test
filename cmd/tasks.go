@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/hibiken/asynq"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/spf13/cobra"
+	"math/rand"
 	"test-manager/handlers"
 	"test-manager/repos"
 	"test-manager/repos/influx"
@@ -104,14 +106,14 @@ var consumeTasksCmd = &cobra.Command{
 		//	}
 		//	time.Sleep(5 * time.Second)
 		//}
-		go func() {
-			for {
-				err, res := endpointReportRepo.ReadEndpointReportByProject(context.TODO(), 1, 1, "1h", []string{})
-				fmt.Println(res)
-				fmt.Println(err)
-				time.Sleep(5 * time.Second)
-			}
-		}()
+		//go func() {
+		//	for {
+		//		err, res := endpointReportRepo.ReadEndpointReportByProject(context.TODO(), 1, 1, "1h", []string{})
+		//		fmt.Println(res)
+		//		fmt.Println(err)
+		//		time.Sleep(5 * time.Second)
+		//	}
+		//}()
 		agentHandler := handlers.NewAgentHandler()
 		endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, endpointReportRepo, taskPusher, agentHandler)
 		netCatHandler := handlers.NewNetCatHandler(netCatRepo, dataCenterRepo, taskPusher, agentHandler)

@@ -12,6 +12,7 @@ import (
 	"os/signal"
 	"test-manager/handlers"
 	"test-manager/repos"
+	"test-manager/repos/influx"
 	"test-manager/tasks/push"
 	"test-manager/utils"
 	"time"
@@ -50,6 +51,11 @@ var httpCmd = &cobra.Command{
 			Password:    redisClient.Options().Password,
 		})
 		taskPusher := push.NewTaskPush(asynqClient)
+		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "4xBG_YaCrjba0irFmw5CIAGtPPb5RtSlY0NXFVqVIvSCfcGIqWZn1U2-9SDuHxeJ2hVrR7Pscwu0YscxoHm9XA==", "http://localhost:8086", "test", "my-bucket")
+		if err != nil {
+			panic(err)
+		}
+		defer influxClient.Close()
 
 		endpointRepo := repos.NewEndpointRepository(psqlDb)
 		netCatRepo := repos.NewNetCatRepository(psqlDb)
@@ -57,14 +63,16 @@ var httpCmd = &cobra.Command{
 		pingRepo := repos.NewPingRepository(psqlDb)
 		traceRouteRepo := repos.NewTraceRouteRepository(psqlDb)
 		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
+		endpointReportRepo := influx.NewEndpointReportRepository(writeAPI, queryAPI, psqlDb)
 
 		agentHandler := handlers.NewAgentHandler()
 		//endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
 		ruleHandler := handlers.NewRulesHandler(endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
-		controllers := handlers.NewHttpControllers(ruleHandler)
+		controllers := handlers.NewHttpControllers(ruleHandler, endpointReportRepo)
 
 		e.GET("/", controllers.Hello)
 		e.POST("/rules/register", controllers.RegisterRules)
+		e.POST("/report/endpoint/:project_id", controllers.ReportEndpoint)
 
 		// Start server
 		go func() {
