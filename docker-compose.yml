@@ -7,8 +7,8 @@ services:
     restart: always
     build:
       context: .
-        args:
-          CMDRUN: http
+      args:
+        CMDRUN: http
     ports:
       - 8080:8080
   app-tasks:
@@ -17,8 +17,8 @@ services:
     restart: always
     build:
       context: .
-        args:
-          CMDRUN: tasks
+      args:
+        CMDRUN: tasks
   psql:
     image: dockerhub.ir/postgres:latest
     restart: always
