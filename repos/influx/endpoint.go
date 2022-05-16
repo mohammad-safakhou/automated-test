@@ -28,7 +28,7 @@ func NewEndpointReportRepository(writeAPI api.WriteAPIBlocking, queryAPI api.Que
 
 func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error {
 	p := influxdb2.NewPoint("endpoint",
-		map[string]string{"project_id": strconv.Itoa(projectId), "endpoint_id": strconv.Itoa(pipelineId)},
+		map[string]string{"project_id": strconv.Itoa(projectId), "pipeline_id": strconv.Itoa(pipelineId)},
 		map[string]interface{}{"success": success, "response_time": responseTime},
 		time.Now())
 	err := r.writeAPI.WritePoint(context.Background(), p)
