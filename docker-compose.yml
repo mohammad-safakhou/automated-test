@@ -7,7 +7,7 @@ services:
     build:
       context: .
     environment:
-      - cmdrun: http
+      - cmdrun=http
     ports:
       - 8080:8080
   app-tasks:
@@ -16,7 +16,7 @@ services:
     build:
       context: .
     environment:
-      - cmdrun: tasks
+      - cmdrun=tasks
   psql:
     image: dockerhub.ir/postgres:latest
     restart: always
