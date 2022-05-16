@@ -3,7 +3,7 @@ version: '3.1'
 services:
   app:
     container_name: automated_test
-    image: golang:latest
+    image: dockerhub.ir/golang:latest
     restart: always
     working_dir: .
     command: go run main.go http
@@ -11,14 +11,14 @@ services:
       - 8080:8080
   app-tasks:
     container_name: automated_test-tasks
-    image: golang:latest
+    image: dockerhub.ir/golang:latest
     restart: always
     working_dir: .
     command: go run main.go tasks
     ports:
       - 8080:8080
   psql:
-    image: postgres
+    image: dockerhub.ir/postgres:latest
     restart: always
     environment:
       POSTGRES_PASSWORD: root
@@ -26,7 +26,7 @@ services:
     ports:
       - 5432:5432
   influxdb:
-    image: influxdb:1.7-alpine
+    image: dockerhub.ir/influxdb:1.7-alpine
     container_name: influxdb
     ports:
       - "8083:8083"
