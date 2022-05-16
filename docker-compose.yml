@@ -5,18 +5,20 @@ services:
     container_name: automated_test
     image: dockerhub.ir/golang:latest
     restart: always
-    build: .
-    args:
-      - http
+    build:
+      context: .
+        args:
+          CMDRUN: http
     ports:
       - 8080:8080
   app-tasks:
     container_name: automated_test-tasks
     image: dockerhub.ir/golang:latest
     restart: always
-    build: .
-    args:
-      - tasks
+    build:
+      context: .
+        args:
+          CMDRUN: tasks
   psql:
     image: dockerhub.ir/postgres:latest
     restart: always
