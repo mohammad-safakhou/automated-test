@@ -3,7 +3,6 @@ version: '3.1'
 services:
   app:
     container_name: automated_test
-    image: dockerhub.ir/golang:latest
     restart: always
     build:
       context: .
@@ -13,7 +12,6 @@ services:
       - 8080:8080
   app-tasks:
     container_name: automated_test-tasks
-    image: dockerhub.ir/golang:latest
     restart: always
     build:
       context: .
