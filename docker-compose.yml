@@ -26,7 +26,6 @@ services:
     ports:
       - 5432:5432
   influxdb:
-    platform: linux/amd64
     image: influxdb:1.7-alpine
     container_name: influxdb
     ports:
