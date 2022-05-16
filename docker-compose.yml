@@ -6,8 +6,8 @@ services:
     restart: always
     build:
       context: .
-      args:
-        CMDRUN: http
+    environment:
+      - cmdrun: http
     ports:
       - 8080:8080
   app-tasks:
@@ -15,8 +15,8 @@ services:
     restart: always
     build:
       context: .
-      args:
-        CMDRUN: tasks
+    environment:
+      - cmdrun: tasks
   psql:
     image: dockerhub.ir/postgres:latest
     restart: always
@@ -42,3 +42,8 @@ services:
       - INFLUXDB_REPORTING_DISABLED=true
       - INFLUXDB_USER=${INFLUXDB_USER:-prometheus}
       - INFLUXDB_USER_PASSWORD=${INFLUXDB_USER_PASSWORD:-prompass}
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
