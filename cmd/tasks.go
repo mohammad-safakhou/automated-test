@@ -2,11 +2,8 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"github.com/hibiken/asynq"
-	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/spf13/cobra"
-	"math/rand"
 	"test-manager/handlers"
 	"test-manager/repos"
 	"test-manager/repos/influx"
