@@ -5,7 +5,7 @@ services:
     container_name: automated_test
     image: golang:latest
     restart: always
-    working_dir: /app
+    working_dir: .
     command: go run main.go http
     ports:
       - 8080:8080
@@ -13,7 +13,7 @@ services:
     container_name: automated_test-tasks
     image: golang:latest
     restart: always
-    working_dir: /app
+    working_dir: .
     command: go run main.go tasks
     ports:
       - 8080:8080
