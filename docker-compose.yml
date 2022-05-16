@@ -10,6 +10,7 @@ services:
       - cmdrun=http
     ports:
       - 8080:8080
+    command: ["./app", "http"]
   app-tasks:
     container_name: automated_test-tasks
     restart: always
@@ -17,6 +18,7 @@ services:
       context: .
     environment:
       - cmdrun=tasks
+    command: ["./app", "tasks"]
   psql:
     image: dockerhub.ir/postgres:latest
     restart: always
@@ -43,7 +45,7 @@ services:
       - INFLUXDB_USER=${INFLUXDB_USER:-prometheus}
       - INFLUXDB_USER_PASSWORD=${INFLUXDB_USER_PASSWORD:-prompass}
   redis:
-    image: redis
+    image: dockerhub.ir/redis
     restart: always
     ports:
       - 6379:6379
