@@ -13,4 +13,4 @@ FROM dockerhub.ir/buildpack-deps:buster as app
 WORKDIR /usr/local/bin
 RUN mkdir tmp
 COPY --from=builder /usr/src/app/app .
-CMD ["./app $CMDRUN"]
+CMD ["./app","$CMDRUN"]
