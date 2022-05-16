@@ -22,7 +22,7 @@ services:
     ports:
       - 5432:5432
   influxdb:
-    image: dockerhub.ir/influxdb:1.7-alpine
+    image: dockerhub.ir/influxdb:latest
     container_name: influxdb
     ports:
       - "8083:8083"
