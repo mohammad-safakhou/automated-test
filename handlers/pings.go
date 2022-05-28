@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"sync"
 	"test-manager/repos"
+	"test-manager/repos/influx"
 	"test-manager/tasks/push"
 	"test-manager/usecase_models"
 )
@@ -16,12 +17,13 @@ type PingHandler interface {
 type pingHandler struct {
 	pingRepo        repos.PingRepository
 	dataCentersRepo repos.DataCentersRepository
+	pingReportRepo  influx.PingReportRepository
 	taskPusher      push.TaskPusher
 	agentHandler    AgentHandler
 }
 
-func NewPingHandler(pingRepo repos.PingRepository, dataCentersRepo repos.DataCentersRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) PingHandler {
-	return &pingHandler{pingRepo: pingRepo, dataCentersRepo: dataCentersRepo, taskPusher: taskPusher, agentHandler: agentHandler}
+func NewPingHandler(pingRepo repos.PingRepository, dataCentersRepo repos.DataCentersRepository, pingReportRepo influx.PingReportRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) PingHandler {
+	return &pingHandler{pingRepo: pingRepo, dataCentersRepo: dataCentersRepo, pingReportRepo: pingReportRepo, taskPusher: taskPusher, agentHandler: agentHandler}
 }
 
 func (e *pingHandler) ExecutePingRule(ctx context.Context, pingRules usecase_models.Pings) error {
@@ -49,8 +51,16 @@ func (e *pingHandler) ExecutePingRule(ctx context.Context, pingRules usecase_mod
 				}
 
 				if response.Status == 0 {
+					err = e.pingReportRepo.WritePingReport(ctx, pingRules.Scheduling.ProjectId, rule.Address, 0)
+					if err != nil {
+						log.Info("error on writing curl report in executing rule: ", err)
+					}
 					// TODO: send alert
 					break
+				}
+				err = e.pingReportRepo.WritePingReport(ctx, pingRules.Scheduling.ProjectId, rule.Address, 1)
+				if err != nil {
+					log.Info("error on writing curl report in executing rule: ", err)
 				}
 			}
 			waitGroup.Done()

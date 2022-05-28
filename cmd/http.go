@@ -64,15 +64,26 @@ var httpCmd = &cobra.Command{
 		traceRouteRepo := repos.NewTraceRouteRepository(psqlDb)
 		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 		endpointReportRepo := influx.NewEndpointReportRepository(writeAPI, queryAPI, psqlDb)
+		netCatReportRepo := influx.NewNetCatsReportRepository(writeAPI, queryAPI, psqlDb)
+		pageSPeedReportRepo := influx.NewPageSpeedReportRepository(writeAPI, queryAPI, psqlDb)
+		pingReportRepo := influx.NewPingReportRepository(writeAPI, queryAPI, psqlDb)
+		traceRouteReportRepo := influx.NewTraceRouteReportRepository(writeAPI, queryAPI, psqlDb)
 
 		agentHandler := handlers.NewAgentHandler()
 		//endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
 		ruleHandler := handlers.NewRulesHandler(endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
-		controllers := handlers.NewHttpControllers(ruleHandler, endpointReportRepo)
+		controllers := handlers.NewHttpControllers(ruleHandler, endpointReportRepo, netCatReportRepo,
+			pageSPeedReportRepo,
+			pingReportRepo,
+			traceRouteReportRepo)
 
 		e.GET("/", controllers.Hello)
 		e.POST("/rules/register", controllers.RegisterRules)
 		e.POST("/report/endpoint/:project_id", controllers.ReportEndpoint)
+		e.POST("/report/net_cat/:project_id", controllers.ReportNetCat)
+		e.POST("/report/page_speed/:project_id", controllers.ReportPageSpeed)
+		e.POST("/report/ping/:project_id", controllers.ReportPing)
+		e.POST("/report/trace_route/:project_id", controllers.ReportTraceRoute)
 
 		// Start server
 		go func() {

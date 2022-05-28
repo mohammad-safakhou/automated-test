@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"sync"
 	"test-manager/repos"
+	"test-manager/repos/influx"
 	"test-manager/tasks/push"
 	"test-manager/usecase_models"
 )
@@ -14,14 +15,15 @@ type NetCatHandler interface {
 }
 
 type netCatHandler struct {
-	netCatRepo      repos.NetCatRepository
-	dataCentersRepo repos.DataCentersRepository
-	taskPusher      push.TaskPusher
-	agentHandler    AgentHandler
+	netCatRepo       repos.NetCatRepository
+	dataCentersRepo  repos.DataCentersRepository
+	netCatReportRepo influx.NetCatsReportRepository
+	taskPusher       push.TaskPusher
+	agentHandler     AgentHandler
 }
 
-func NewNetCatHandler(netCatRepo repos.NetCatRepository, dataCentersRepo repos.DataCentersRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) NetCatHandler {
-	return &netCatHandler{netCatRepo: netCatRepo, dataCentersRepo: dataCentersRepo, taskPusher: taskPusher, agentHandler: agentHandler}
+func NewNetCatHandler(netCatRepo repos.NetCatRepository, dataCentersRepo repos.DataCentersRepository,netCatReportRepo influx.NetCatsReportRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) NetCatHandler {
+	return &netCatHandler{netCatRepo: netCatRepo, dataCentersRepo: dataCentersRepo, netCatReportRepo: netCatReportRepo,taskPusher: taskPusher, agentHandler: agentHandler}
 }
 
 func (e *netCatHandler) ExecuteNetCatRule(ctx context.Context, netCatRules usecase_models.NetCats) error {
@@ -50,8 +52,16 @@ func (e *netCatHandler) ExecuteNetCatRule(ctx context.Context, netCatRules useca
 				}
 
 				if response.Status == 0 {
+					err = e.netCatReportRepo.WriteNetCatsReport(ctx, netCatRules.Scheduling.ProjectId, rule.Address, 0)
+					if err != nil {
+						log.Info("error on writing curl report in executing rule: ", err)
+					}
 					// TODO: send alert
 					break
+				}
+				err = e.netCatReportRepo.WriteNetCatsReport(ctx, netCatRules.Scheduling.ProjectId, rule.Address, 1)
+				if err != nil {
+					log.Info("error on writing curl report in executing rule: ", err)
 				}
 			}
 			waitGroup.Done()

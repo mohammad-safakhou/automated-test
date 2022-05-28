@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"sync"
 	"test-manager/repos"
+	"test-manager/repos/influx"
 	"test-manager/tasks/push"
 	"test-manager/usecase_models"
 )
@@ -14,14 +15,15 @@ type TraceRouteHandler interface {
 }
 
 type traceRouteHandler struct {
-	traceRouteRepo  repos.TraceRouteRepository
-	dataCentersRepo repos.DataCentersRepository
-	taskPusher      push.TaskPusher
-	agentHandler    AgentHandler
+	traceRouteRepo       repos.TraceRouteRepository
+	dataCentersRepo      repos.DataCentersRepository
+	traceRouteReportRepo influx.TraceRouteReportRepository
+	taskPusher           push.TaskPusher
+	agentHandler         AgentHandler
 }
 
-func NewTraceRouteHandler(traceRouteRepo repos.TraceRouteRepository, dataCentersRepo repos.DataCentersRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) TraceRouteHandler {
-	return &traceRouteHandler{traceRouteRepo: traceRouteRepo, dataCentersRepo: dataCentersRepo, taskPusher: taskPusher, agentHandler: agentHandler}
+func NewTraceRouteHandler(traceRouteRepo repos.TraceRouteRepository, dataCentersRepo repos.DataCentersRepository, traceRouteReportRepo influx.TraceRouteReportRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) TraceRouteHandler {
+	return &traceRouteHandler{traceRouteRepo: traceRouteRepo, dataCentersRepo: dataCentersRepo, traceRouteReportRepo: traceRouteReportRepo, taskPusher: taskPusher, agentHandler: agentHandler}
 }
 
 func (e *traceRouteHandler) ExecuteTraceRouteRule(ctx context.Context, traceRouteRules usecase_models.TraceRoutes) error {
@@ -49,8 +51,16 @@ func (e *traceRouteHandler) ExecuteTraceRouteRule(ctx context.Context, traceRout
 				}
 
 				if response.Status == 0 {
+					err = e.traceRouteReportRepo.WriteTraceRouteReport(ctx, traceRouteRules.Scheduling.ProjectId, rule.Address, 0)
+					if err != nil {
+						log.Info("error on writing curl report in executing rule: ", err)
+					}
 					// TODO: send alert
 					break
+				}
+				err = e.traceRouteReportRepo.WriteTraceRouteReport(ctx, traceRouteRules.Scheduling.ProjectId, rule.Address, 1)
+				if err != nil {
+					log.Info("error on writing curl report in executing rule: ", err)
 				}
 			}
 			waitGroup.Done()

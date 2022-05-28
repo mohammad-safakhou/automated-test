@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"sync"
 	"test-manager/repos"
+	"test-manager/repos/influx"
 	"test-manager/tasks/push"
 	"test-manager/usecase_models"
 )
@@ -14,14 +15,15 @@ type PageSpeedHandler interface {
 }
 
 type pageSpeedHandler struct {
-	pageSpeedRepo   repos.PageSpeedRepository
-	dataCentersRepo repos.DataCentersRepository
-	taskPusher      push.TaskPusher
-	agentHandler    AgentHandler
+	pageSpeedRepo       repos.PageSpeedRepository
+	dataCentersRepo     repos.DataCentersRepository
+	pageSpeedReportRepo influx.PageSpeedReportRepository
+	taskPusher          push.TaskPusher
+	agentHandler        AgentHandler
 }
 
-func NewPageSpeedHandler(pageSpeedRepo repos.PageSpeedRepository, dataCentersRepo repos.DataCentersRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) PageSpeedHandler {
-	return &pageSpeedHandler{pageSpeedRepo: pageSpeedRepo, dataCentersRepo: dataCentersRepo, taskPusher: taskPusher, agentHandler: agentHandler}
+func NewPageSpeedHandler(pageSpeedRepo repos.PageSpeedRepository, dataCentersRepo repos.DataCentersRepository, pageSpeedReportRepo influx.PageSpeedReportRepository, taskPusher push.TaskPusher, agentHandler AgentHandler) PageSpeedHandler {
+	return &pageSpeedHandler{pageSpeedRepo: pageSpeedRepo, dataCentersRepo: dataCentersRepo, pageSpeedReportRepo: pageSpeedReportRepo, taskPusher: taskPusher, agentHandler: agentHandler}
 }
 
 func (e *pageSpeedHandler) ExecutePageSpeedRule(ctx context.Context, pageSpeedRules usecase_models.PageSpeed) error {
@@ -47,8 +49,16 @@ func (e *pageSpeedHandler) ExecutePageSpeedRule(ctx context.Context, pageSpeedRu
 				}
 
 				if response.Status == 0 {
+					err = e.pageSpeedReportRepo.WritePageSpeedReport(ctx, pageSpeedRules.Scheduling.ProjectId, rule.Url, 0)
+					if err != nil {
+						log.Info("error on writing curl report in executing rule: ", err)
+					}
 					// TODO: send alert
 					break
+				}
+				err = e.pageSpeedReportRepo.WritePageSpeedReport(ctx, pageSpeedRules.Scheduling.ProjectId, rule.Url, 1)
+				if err != nil {
+					log.Info("error on writing curl report in executing rule: ", err)
 				}
 			}
 			waitGroup.Done()

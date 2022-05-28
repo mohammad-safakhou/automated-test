@@ -10,26 +10,26 @@ import (
 	"time"
 )
 
-type EndpointReportRepository interface {
-	WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error
-	ReadEndpointReportByProject(ctx context.Context, projectId int, pipelineId int, timeFrame string, fields []string) (err error, res []interface{})
+type PingReportRepository interface {
+	WritePingReport(ctx context.Context, projectId int, url string, success int) error
+	ReadPingReportByProject(ctx context.Context, projectId int, url string, timeFrame string, fields []string) (err error, res []interface{})
 }
 
-type endpointReportRepository struct {
+type pingReportRepository struct {
 	writeAPI api.WriteAPIBlocking
 	queryAPI api.QueryAPI
 
 	db *sql.DB
 }
 
-func NewEndpointReportRepository(writeAPI api.WriteAPIBlocking, queryAPI api.QueryAPI, db *sql.DB) EndpointReportRepository {
-	return &endpointReportRepository{writeAPI: writeAPI, queryAPI: queryAPI, db: db}
+func NewPingReportRepository(writeAPI api.WriteAPIBlocking, queryAPI api.QueryAPI, db *sql.DB) PingReportRepository {
+	return &pingReportRepository{writeAPI: writeAPI, queryAPI: queryAPI, db: db}
 }
 
-func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, projectId int, pipelineId int, success int, responseTime float64) error {
-	p := influxdb2.NewPoint("endpoint",
-		map[string]string{"project_id": strconv.Itoa(projectId), "pipeline_id": strconv.Itoa(pipelineId)},
-		map[string]interface{}{"success": success, "response_time": responseTime},
+func (r *pingReportRepository) WritePingReport(ctx context.Context, projectId int, url string, success int) error {
+	p := influxdb2.NewPoint("ping",
+		map[string]string{"project_id": strconv.Itoa(projectId), "url": url},
+		map[string]interface{}{"success": success},
 		time.Now())
 	err := r.writeAPI.WritePoint(context.Background(), p)
 	if err != nil {
@@ -38,7 +38,8 @@ func (r *endpointReportRepository) WriteEndpointReport(ctx context.Context, proj
 	return nil
 }
 
-func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Context, projectId int, pipelineId int, timeFrame string, fields []string) (err error, res []interface{}) {
+
+func (r *pingReportRepository) ReadPingReportByProject(ctx context.Context, projectId int, url string, timeFrame string, fields []string) (err error, res []interface{}) {
 	fieldsQuery := ""
 	for _, value := range fields {
 		fieldsQuery = fieldsQuery + fmt.Sprintf("or r[\"_field\"] == \"%s\"", value)
@@ -46,37 +47,37 @@ func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Conte
 	query := ""
 	if fieldsQuery != "" {
 		fieldsQuery = fieldsQuery[2:]
-		if pipelineId != 0 {
+		if url != "" {
 			query = fmt.Sprintf(`from(bucket:"my-bucket")
 		 |> range(start: -%s) 
-		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => r["_measurement"] == "ping")
 		 |> filter(fn: (r) => %s)
 		 |> filter(fn: (r) => r.project_id == "%s")
-		 |> filter(fn: (r) => r.pipeline_id == "%s")
+		 |> filter(fn: (r) => r.url == "%s")
 		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
-		 |> yield(name: "last")`, timeFrame, fieldsQuery, strconv.Itoa(projectId), strconv.Itoa(pipelineId))
+		 |> yield(name: "last")`, timeFrame, fieldsQuery, strconv.Itoa(projectId), url)
 		} else {
 			query = fmt.Sprintf(`from(bucket:"my-bucket")
 		 |> range(start: -%s) 
-		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => r["_measurement"] == "ping")
 		 |> filter(fn: (r) => %s)
 		 |> filter(fn: (r) => r.project_id == "%s")
 		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
 		 |> yield(name: "last")`, timeFrame, fieldsQuery, strconv.Itoa(projectId))
 		}
 	} else {
-		if pipelineId != 0 {
+		if url != "" {
 			query = fmt.Sprintf(`from(bucket:"my-bucket")
 		 |> range(start: -%s) 
-		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => r["_measurement"] == "ping")
 		 |> filter(fn: (r) => r.project_id == "%s")
-		 |> filter(fn: (r) => r.pipeline_id == "%s")
+		 |> filter(fn: (r) => r.url == "%s")
 		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
-		 |> yield(name: "last")`, timeFrame, strconv.Itoa(projectId), strconv.Itoa(pipelineId))
+		 |> yield(name: "last")`, timeFrame, strconv.Itoa(projectId), url)
 		} else {
 			query = fmt.Sprintf(`from(bucket:"my-bucket")
 		 |> range(start: -%s) 
-		 |> filter(fn: (r) => r["_measurement"] == "endpoint")
+		 |> filter(fn: (r) => r["_measurement"] == "ping")
 		 |> filter(fn: (r) => r.project_id == "%s")
 		 |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
 		 |> yield(name: "last")`, timeFrame, strconv.Itoa(projectId))
@@ -85,7 +86,7 @@ func (r *endpointReportRepository) ReadEndpointReportByProject(ctx context.Conte
 
 	//query := fmt.Sprintf(`from(bucket:"my-bucket")
 	//  |> range(start: -%s)
-	//|> filter(fn: (r) => r["_measurement"] == "endpoint")
+	//|> filter(fn: (r) => r["_measurement"] == "Ping")
 	//|> filter(fn: (r) => r["_field"] == "success" or r["_field"] == "response_time")
 	//|> filter(fn: (r) => r.project_id == "%s")
 	//|> aggregateWindow(every: 10s, fn: last, createEmpty: false)

@@ -84,6 +84,10 @@ var consumeTasksCmd = &cobra.Command{
 		traceRouteRepo := repos.NewTraceRouteRepository(psqlDb)
 		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 		endpointReportRepo := influx.NewEndpointReportRepository(writeAPI, queryAPI, psqlDb)
+		netCatReportRepo := influx.NewNetCatsReportRepository(writeAPI, queryAPI, psqlDb)
+		pageSPeedReportRepo := influx.NewPageSpeedReportRepository(writeAPI, queryAPI, psqlDb)
+		pingReportRepo := influx.NewPingReportRepository(writeAPI, queryAPI, psqlDb)
+		traceRouteReportRepo := influx.NewTraceRouteReportRepository(writeAPI, queryAPI, psqlDb)
 
 		//for {
 		//	st := 0
@@ -113,10 +117,10 @@ var consumeTasksCmd = &cobra.Command{
 		//}()
 		agentHandler := handlers.NewAgentHandler()
 		endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, endpointReportRepo, taskPusher, agentHandler)
-		netCatHandler := handlers.NewNetCatHandler(netCatRepo, dataCenterRepo, taskPusher, agentHandler)
-		pageSpeedHandler := handlers.NewPageSpeedHandler(pageSpeedRepo, dataCenterRepo, taskPusher, agentHandler)
-		pingHandler := handlers.NewPingHandler(pingRepo, dataCenterRepo, taskPusher, agentHandler)
-		traceRouteHandler := handlers.NewTraceRouteHandler(traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
+		netCatHandler := handlers.NewNetCatHandler(netCatRepo, dataCenterRepo, netCatReportRepo, taskPusher, agentHandler)
+		pageSpeedHandler := handlers.NewPageSpeedHandler(pageSpeedRepo, dataCenterRepo, pageSPeedReportRepo, taskPusher, agentHandler)
+		pingHandler := handlers.NewPingHandler(pingRepo, dataCenterRepo, pingReportRepo, taskPusher, agentHandler)
+		traceRouteHandler := handlers.NewTraceRouteHandler(traceRouteRepo, dataCenterRepo, traceRouteReportRepo, taskPusher, agentHandler)
 
 		mux := asynq.NewServeMux()
 		// handlers
