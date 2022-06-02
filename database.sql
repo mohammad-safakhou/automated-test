@@ -1,13 +1,38 @@
+create table if not exists auth_info
+(
+    id SERIAL primary key ,
+    private_key text
+);
+
+create table if not exists accounts
+(
+    id SERIAL primary key,
+    first_name text,
+    last_name text,
+    phone_number text,
+    email text,
+    username text,
+    password text,
+
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP
+);
+
 create table if not exists projects
 (
     id SERIAL primary key,
     title text ,
     is_active bool,
     expire_at time,
+    account_id int NOT NULL,
+    notifications jsonb,
 
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_at TIMESTAMP NOT NULL,
-    deleted_at TIMESTAMP
+    deleted_at TIMESTAMP,
+
+    foreign key (account_id) references accounts(id)
     );
 
 create table if not exists endpoints

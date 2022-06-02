@@ -803,7 +803,7 @@ func RelationDatacenters(mods ...qm.QueryMod) relationDatacenterQuery {
 	return relationDatacenterQuery{NewQuery(mods...)}
 }
 
-// FindRelationDatacenter retrieves a single record by SequenceId with an executor.
+// FindRelationDatacenter retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindRelationDatacenter(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*RelationDatacenter, error) {
 	relationDatacenterObj := &RelationDatacenter{}

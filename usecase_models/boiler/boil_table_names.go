@@ -4,6 +4,8 @@
 package models
 
 var TableNames = struct {
+	Accounts            string
+	AuthInfo            string
 	Datacenters         string
 	Endpoints           string
 	NetCats             string
@@ -14,6 +16,8 @@ var TableNames = struct {
 	Schedulings         string
 	TraceRoutes         string
 }{
+	Accounts:            "accounts",
+	AuthInfo:            "auth_info",
 	Datacenters:         "datacenters",
 	Endpoints:           "endpoints",
 	NetCats:             "net_cats",

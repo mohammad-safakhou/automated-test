@@ -87,14 +87,10 @@ var TraceRouteWhere = struct {
 
 // TraceRouteRels is where relationship names are stored.
 var TraceRouteRels = struct {
-	Project string
-}{
-	Project: "Project",
-}
+}{}
 
 // traceRouteR is where relationships are stored.
 type traceRouteR struct {
-	Project *Project `boil:"Project" json:"Project" toml:"Project" yaml:"Project"`
 }
 
 // NewStruct creates a new relationship struct
@@ -391,168 +387,6 @@ func (q traceRouteQuery) Exists(ctx context.Context, exec boil.ContextExecutor) 
 	return count > 0, nil
 }
 
-// Project pointed to by the foreign key.
-func (o *TraceRoute) Project(mods ...qm.QueryMod) projectQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.ProjectID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return Projects(queryMods...)
-}
-
-// LoadProject allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (traceRouteL) LoadProject(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTraceRoute interface{}, mods queries.Applicator) error {
-	var slice []*TraceRoute
-	var object *TraceRoute
-
-	if singular {
-		object = maybeTraceRoute.(*TraceRoute)
-	} else {
-		slice = *maybeTraceRoute.(*[]*TraceRoute)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &traceRouteR{}
-		}
-		args = append(args, object.ProjectID)
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &traceRouteR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ProjectID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ProjectID)
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`projects`),
-		qm.WhereIn(`projects.id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load Project")
-	}
-
-	var resultSlice []*Project
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Project")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for projects")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for projects")
-	}
-
-	if len(traceRouteAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.Project = foreign
-		if foreign.R == nil {
-			foreign.R = &projectR{}
-		}
-		foreign.R.TraceRoutes = append(foreign.R.TraceRoutes, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.ProjectID == foreign.ID {
-				local.R.Project = foreign
-				if foreign.R == nil {
-					foreign.R = &projectR{}
-				}
-				foreign.R.TraceRoutes = append(foreign.R.TraceRoutes, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// SetProject of the traceRoute to the related item.
-// Sets o.R.Project to related.
-// Adds o to related.R.TraceRoutes.
-func (o *TraceRoute) SetProject(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Project) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"trace_routes\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-		strmangle.WhereClause("\"", "\"", 2, traceRoutePrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.ProjectID = related.ID
-	if o.R == nil {
-		o.R = &traceRouteR{
-			Project: related,
-		}
-	} else {
-		o.R.Project = related
-	}
-
-	if related.R == nil {
-		related.R = &projectR{
-			TraceRoutes: TraceRouteSlice{o},
-		}
-	} else {
-		related.R.TraceRoutes = append(related.R.TraceRoutes, o)
-	}
-
-	return nil
-}
-
 // TraceRoutes retrieves all the records using an executor.
 func TraceRoutes(mods ...qm.QueryMod) traceRouteQuery {
 	mods = append(mods, qm.From("\"trace_routes\""))
@@ -564,7 +398,7 @@ func TraceRoutes(mods ...qm.QueryMod) traceRouteQuery {
 	return traceRouteQuery{NewQuery(mods...)}
 }
 
-// FindTraceRoute retrieves a single record by SequenceId with an executor.
+// FindTraceRoute retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindTraceRoute(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*TraceRoute, error) {
 	traceRouteObj := &TraceRoute{}

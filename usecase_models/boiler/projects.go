@@ -24,52 +24,62 @@ import (
 
 // Project is an object representing the database table.
 type Project struct {
-	ID        int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Title     null.String `boil:"title" json:"title,omitempty" toml:"title" yaml:"title,omitempty"`
-	IsActive  null.Bool   `boil:"is_active" json:"is_active,omitempty" toml:"is_active" yaml:"is_active,omitempty"`
-	ExpireAt  null.Time   `boil:"expire_at" json:"expire_at,omitempty" toml:"expire_at" yaml:"expire_at,omitempty"`
-	UpdatedAt time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	DeletedAt null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	ID            int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Title         null.String `boil:"title" json:"title,omitempty" toml:"title" yaml:"title,omitempty"`
+	IsActive      null.Bool   `boil:"is_active" json:"is_active,omitempty" toml:"is_active" yaml:"is_active,omitempty"`
+	ExpireAt      null.Time   `boil:"expire_at" json:"expire_at,omitempty" toml:"expire_at" yaml:"expire_at,omitempty"`
+	AccountID     int         `boil:"account_id" json:"account_id" toml:"account_id" yaml:"account_id"`
+	Notifications null.JSON   `boil:"notifications" json:"notifications,omitempty" toml:"notifications" yaml:"notifications,omitempty"`
+	UpdatedAt     time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt     time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	DeletedAt     null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *projectR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L projectL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var ProjectColumns = struct {
-	ID        string
-	Title     string
-	IsActive  string
-	ExpireAt  string
-	UpdatedAt string
-	CreatedAt string
-	DeletedAt string
+	ID            string
+	Title         string
+	IsActive      string
+	ExpireAt      string
+	AccountID     string
+	Notifications string
+	UpdatedAt     string
+	CreatedAt     string
+	DeletedAt     string
 }{
-	ID:        "id",
-	Title:     "title",
-	IsActive:  "is_active",
-	ExpireAt:  "expire_at",
-	UpdatedAt: "updated_at",
-	CreatedAt: "created_at",
-	DeletedAt: "deleted_at",
+	ID:            "id",
+	Title:         "title",
+	IsActive:      "is_active",
+	ExpireAt:      "expire_at",
+	AccountID:     "account_id",
+	Notifications: "notifications",
+	UpdatedAt:     "updated_at",
+	CreatedAt:     "created_at",
+	DeletedAt:     "deleted_at",
 }
 
 var ProjectTableColumns = struct {
-	ID        string
-	Title     string
-	IsActive  string
-	ExpireAt  string
-	UpdatedAt string
-	CreatedAt string
-	DeletedAt string
+	ID            string
+	Title         string
+	IsActive      string
+	ExpireAt      string
+	AccountID     string
+	Notifications string
+	UpdatedAt     string
+	CreatedAt     string
+	DeletedAt     string
 }{
-	ID:        "projects.id",
-	Title:     "projects.title",
-	IsActive:  "projects.is_active",
-	ExpireAt:  "projects.expire_at",
-	UpdatedAt: "projects.updated_at",
-	CreatedAt: "projects.created_at",
-	DeletedAt: "projects.deleted_at",
+	ID:            "projects.id",
+	Title:         "projects.title",
+	IsActive:      "projects.is_active",
+	ExpireAt:      "projects.expire_at",
+	AccountID:     "projects.account_id",
+	Notifications: "projects.notifications",
+	UpdatedAt:     "projects.updated_at",
+	CreatedAt:     "projects.created_at",
+	DeletedAt:     "projects.deleted_at",
 }
 
 // Generated where
@@ -98,49 +108,62 @@ func (w whereHelpernull_Bool) GTE(x null.Bool) qm.QueryMod {
 func (w whereHelpernull_Bool) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_Bool) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
+type whereHelpernull_JSON struct{ field string }
+
+func (w whereHelpernull_JSON) EQ(x null.JSON) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_JSON) NEQ(x null.JSON) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_JSON) LT(x null.JSON) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_JSON) LTE(x null.JSON) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_JSON) GT(x null.JSON) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_JSON) GTE(x null.JSON) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+func (w whereHelpernull_JSON) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_JSON) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var ProjectWhere = struct {
-	ID        whereHelperint
-	Title     whereHelpernull_String
-	IsActive  whereHelpernull_Bool
-	ExpireAt  whereHelpernull_Time
-	UpdatedAt whereHelpertime_Time
-	CreatedAt whereHelpertime_Time
-	DeletedAt whereHelpernull_Time
+	ID            whereHelperint
+	Title         whereHelpernull_String
+	IsActive      whereHelpernull_Bool
+	ExpireAt      whereHelpernull_Time
+	AccountID     whereHelperint
+	Notifications whereHelpernull_JSON
+	UpdatedAt     whereHelpertime_Time
+	CreatedAt     whereHelpertime_Time
+	DeletedAt     whereHelpernull_Time
 }{
-	ID:        whereHelperint{field: "\"projects\".\"id\""},
-	Title:     whereHelpernull_String{field: "\"projects\".\"title\""},
-	IsActive:  whereHelpernull_Bool{field: "\"projects\".\"is_active\""},
-	ExpireAt:  whereHelpernull_Time{field: "\"projects\".\"expire_at\""},
-	UpdatedAt: whereHelpertime_Time{field: "\"projects\".\"updated_at\""},
-	CreatedAt: whereHelpertime_Time{field: "\"projects\".\"created_at\""},
-	DeletedAt: whereHelpernull_Time{field: "\"projects\".\"deleted_at\""},
+	ID:            whereHelperint{field: "\"projects\".\"id\""},
+	Title:         whereHelpernull_String{field: "\"projects\".\"title\""},
+	IsActive:      whereHelpernull_Bool{field: "\"projects\".\"is_active\""},
+	ExpireAt:      whereHelpernull_Time{field: "\"projects\".\"expire_at\""},
+	AccountID:     whereHelperint{field: "\"projects\".\"account_id\""},
+	Notifications: whereHelpernull_JSON{field: "\"projects\".\"notifications\""},
+	UpdatedAt:     whereHelpertime_Time{field: "\"projects\".\"updated_at\""},
+	CreatedAt:     whereHelpertime_Time{field: "\"projects\".\"created_at\""},
+	DeletedAt:     whereHelpernull_Time{field: "\"projects\".\"deleted_at\""},
 }
 
 // ProjectRels is where relationship names are stored.
 var ProjectRels = struct {
-	Endpoints   string
-	NetCats     string
-	PageSpeeds  string
-	Pings       string
-	Schedulings string
-	TraceRoutes string
+	Account string
 }{
-	Endpoints:   "Endpoints",
-	NetCats:     "NetCats",
-	PageSpeeds:  "PageSpeeds",
-	Pings:       "Pings",
-	Schedulings: "Schedulings",
-	TraceRoutes: "TraceRoutes",
+	Account: "Account",
 }
 
 // projectR is where relationships are stored.
 type projectR struct {
-	Endpoints   EndpointSlice   `boil:"Endpoints" json:"Endpoints" toml:"Endpoints" yaml:"Endpoints"`
-	NetCats     NetCatSlice     `boil:"NetCats" json:"NetCats" toml:"NetCats" yaml:"NetCats"`
-	PageSpeeds  PageSpeedSlice  `boil:"PageSpeeds" json:"PageSpeeds" toml:"PageSpeeds" yaml:"PageSpeeds"`
-	Pings       PingSlice       `boil:"Pings" json:"Pings" toml:"Pings" yaml:"Pings"`
-	Schedulings SchedulingSlice `boil:"Schedulings" json:"Schedulings" toml:"Schedulings" yaml:"Schedulings"`
-	TraceRoutes TraceRouteSlice `boil:"TraceRoutes" json:"TraceRoutes" toml:"TraceRoutes" yaml:"TraceRoutes"`
+	Account *Account `boil:"Account" json:"Account" toml:"Account" yaml:"Account"`
 }
 
 // NewStruct creates a new relationship struct
@@ -152,9 +175,9 @@ func (*projectR) NewStruct() *projectR {
 type projectL struct{}
 
 var (
-	projectAllColumns            = []string{"id", "title", "is_active", "expire_at", "updated_at", "created_at", "deleted_at"}
-	projectColumnsWithoutDefault = []string{"created_at"}
-	projectColumnsWithDefault    = []string{"id", "title", "is_active", "expire_at", "updated_at", "deleted_at"}
+	projectAllColumns            = []string{"id", "title", "is_active", "expire_at", "account_id", "notifications", "updated_at", "created_at", "deleted_at"}
+	projectColumnsWithoutDefault = []string{"account_id", "created_at"}
+	projectColumnsWithDefault    = []string{"id", "title", "is_active", "expire_at", "notifications", "updated_at", "deleted_at"}
 	projectPrimaryKeyColumns     = []string{"id"}
 	projectGeneratedColumns      = []string{}
 )
@@ -437,93 +460,20 @@ func (q projectQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bo
 	return count > 0, nil
 }
 
-// Endpoints retrieves all the endpoint's Endpoints with an executor.
-func (o *Project) Endpoints(mods ...qm.QueryMod) endpointQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
+// Account pointed to by the foreign key.
+func (o *Project) Account(mods ...qm.QueryMod) accountQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.AccountID),
 	}
 
-	queryMods = append(queryMods,
-		qm.Where("\"endpoints\".\"project_id\"=?", o.ID),
-	)
+	queryMods = append(queryMods, mods...)
 
-	return Endpoints(queryMods...)
+	return Accounts(queryMods...)
 }
 
-// NetCats retrieves all the net_cat's NetCats with an executor.
-func (o *Project) NetCats(mods ...qm.QueryMod) netCatQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"net_cats\".\"project_id\"=?", o.ID),
-	)
-
-	return NetCats(queryMods...)
-}
-
-// PageSpeeds retrieves all the page_speed's PageSpeeds with an executor.
-func (o *Project) PageSpeeds(mods ...qm.QueryMod) pageSpeedQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"page_speeds\".\"project_id\"=?", o.ID),
-	)
-
-	return PageSpeeds(queryMods...)
-}
-
-// Pings retrieves all the ping's Pings with an executor.
-func (o *Project) Pings(mods ...qm.QueryMod) pingQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"pings\".\"project_id\"=?", o.ID),
-	)
-
-	return Pings(queryMods...)
-}
-
-// Schedulings retrieves all the scheduling's Schedulings with an executor.
-func (o *Project) Schedulings(mods ...qm.QueryMod) schedulingQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"schedulings\".\"project_id\"=?", o.ID),
-	)
-
-	return Schedulings(queryMods...)
-}
-
-// TraceRoutes retrieves all the trace_route's TraceRoutes with an executor.
-func (o *Project) TraceRoutes(mods ...qm.QueryMod) traceRouteQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"trace_routes\".\"project_id\"=?", o.ID),
-	)
-
-	return TraceRoutes(queryMods...)
-}
-
-// LoadEndpoints allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (projectL) LoadEndpoints(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProject interface{}, mods queries.Applicator) error {
+// LoadAccount allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (projectL) LoadAccount(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProject interface{}, mods queries.Applicator) error {
 	var slice []*Project
 	var object *Project
 
@@ -538,7 +488,8 @@ func (projectL) LoadEndpoints(ctx context.Context, e boil.ContextExecutor, singu
 		if object.R == nil {
 			object.R = &projectR{}
 		}
-		args = append(args, object.ID)
+		args = append(args, object.AccountID)
+
 	} else {
 	Outer:
 		for _, obj := range slice {
@@ -547,12 +498,13 @@ func (projectL) LoadEndpoints(ctx context.Context, e boil.ContextExecutor, singu
 			}
 
 			for _, a := range args {
-				if a == obj.ID {
+				if a == obj.AccountID {
 					continue Outer
 				}
 			}
 
-			args = append(args, obj.ID)
+			args = append(args, obj.AccountID)
+
 		}
 	}
 
@@ -561,8 +513,8 @@ func (projectL) LoadEndpoints(ctx context.Context, e boil.ContextExecutor, singu
 	}
 
 	query := NewQuery(
-		qm.From(`endpoints`),
-		qm.WhereIn(`endpoints.project_id in ?`, args...),
+		qm.From(`accounts`),
+		qm.WhereIn(`accounts.id in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -570,47 +522,51 @@ func (projectL) LoadEndpoints(ctx context.Context, e boil.ContextExecutor, singu
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load endpoints")
+		return errors.Wrap(err, "failed to eager load Account")
 	}
 
-	var resultSlice []*Endpoint
+	var resultSlice []*Account
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice endpoints")
+		return errors.Wrap(err, "failed to bind eager loaded slice Account")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on endpoints")
+		return errors.Wrap(err, "failed to close results of eager load for accounts")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for endpoints")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for accounts")
 	}
 
-	if len(endpointAfterSelectHooks) != 0 {
+	if len(projectAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
 			}
 		}
 	}
-	if singular {
-		object.R.Endpoints = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &endpointR{}
-			}
-			foreign.R.Project = object
-		}
+
+	if len(resultSlice) == 0 {
 		return nil
 	}
 
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.ProjectID {
-				local.R.Endpoints = append(local.R.Endpoints, foreign)
+	if singular {
+		foreign := resultSlice[0]
+		object.R.Account = foreign
+		if foreign.R == nil {
+			foreign.R = &accountR{}
+		}
+		foreign.R.Projects = append(foreign.R.Projects, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.AccountID == foreign.ID {
+				local.R.Account = foreign
 				if foreign.R == nil {
-					foreign.R = &endpointR{}
+					foreign.R = &accountR{}
 				}
-				foreign.R.Project = local
+				foreign.R.Projects = append(foreign.R.Projects, local)
 				break
 			}
 		}
@@ -619,811 +575,50 @@ func (projectL) LoadEndpoints(ctx context.Context, e boil.ContextExecutor, singu
 	return nil
 }
 
-// LoadNetCats allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (projectL) LoadNetCats(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProject interface{}, mods queries.Applicator) error {
-	var slice []*Project
-	var object *Project
-
-	if singular {
-		object = maybeProject.(*Project)
-	} else {
-		slice = *maybeProject.(*[]*Project)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &projectR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &projectR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
+// SetAccount of the project to the related item.
+// Sets o.R.Account to related.
+// Adds o to related.R.Projects.
+func (o *Project) SetAccount(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Account) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
 		}
 	}
 
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`net_cats`),
-		qm.WhereIn(`net_cats.project_id in ?`, args...),
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"projects\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"account_id"}),
+		strmangle.WhereClause("\"", "\"", 2, projectPrimaryKeyColumns),
 	)
-	if mods != nil {
-		mods.Apply(query)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
 	}
 
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load net_cats")
-	}
-
-	var resultSlice []*NetCat
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice net_cats")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on net_cats")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for net_cats")
-	}
-
-	if len(netCatAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.NetCats = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &netCatR{}
-			}
-			foreign.R.Project = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.ProjectID {
-				local.R.NetCats = append(local.R.NetCats, foreign)
-				if foreign.R == nil {
-					foreign.R = &netCatR{}
-				}
-				foreign.R.Project = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadPageSpeeds allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (projectL) LoadPageSpeeds(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProject interface{}, mods queries.Applicator) error {
-	var slice []*Project
-	var object *Project
-
-	if singular {
-		object = maybeProject.(*Project)
-	} else {
-		slice = *maybeProject.(*[]*Project)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &projectR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &projectR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`page_speeds`),
-		qm.WhereIn(`page_speeds.project_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load page_speeds")
-	}
-
-	var resultSlice []*PageSpeed
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice page_speeds")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on page_speeds")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for page_speeds")
-	}
-
-	if len(pageSpeedAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.PageSpeeds = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &pageSpeedR{}
-			}
-			foreign.R.Project = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.ProjectID {
-				local.R.PageSpeeds = append(local.R.PageSpeeds, foreign)
-				if foreign.R == nil {
-					foreign.R = &pageSpeedR{}
-				}
-				foreign.R.Project = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadPings allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (projectL) LoadPings(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProject interface{}, mods queries.Applicator) error {
-	var slice []*Project
-	var object *Project
-
-	if singular {
-		object = maybeProject.(*Project)
-	} else {
-		slice = *maybeProject.(*[]*Project)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &projectR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &projectR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`pings`),
-		qm.WhereIn(`pings.project_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load pings")
-	}
-
-	var resultSlice []*Ping
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice pings")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on pings")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for pings")
-	}
-
-	if len(pingAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.Pings = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &pingR{}
-			}
-			foreign.R.Project = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.ProjectID {
-				local.R.Pings = append(local.R.Pings, foreign)
-				if foreign.R == nil {
-					foreign.R = &pingR{}
-				}
-				foreign.R.Project = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadSchedulings allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (projectL) LoadSchedulings(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProject interface{}, mods queries.Applicator) error {
-	var slice []*Project
-	var object *Project
-
-	if singular {
-		object = maybeProject.(*Project)
-	} else {
-		slice = *maybeProject.(*[]*Project)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &projectR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &projectR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`schedulings`),
-		qm.WhereIn(`schedulings.project_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load schedulings")
-	}
-
-	var resultSlice []*Scheduling
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice schedulings")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on schedulings")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for schedulings")
-	}
-
-	if len(schedulingAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.Schedulings = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &schedulingR{}
-			}
-			foreign.R.Project = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.ProjectID {
-				local.R.Schedulings = append(local.R.Schedulings, foreign)
-				if foreign.R == nil {
-					foreign.R = &schedulingR{}
-				}
-				foreign.R.Project = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadTraceRoutes allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (projectL) LoadTraceRoutes(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProject interface{}, mods queries.Applicator) error {
-	var slice []*Project
-	var object *Project
-
-	if singular {
-		object = maybeProject.(*Project)
-	} else {
-		slice = *maybeProject.(*[]*Project)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &projectR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &projectR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`trace_routes`),
-		qm.WhereIn(`trace_routes.project_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load trace_routes")
-	}
-
-	var resultSlice []*TraceRoute
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice trace_routes")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on trace_routes")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for trace_routes")
-	}
-
-	if len(traceRouteAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.TraceRoutes = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &traceRouteR{}
-			}
-			foreign.R.Project = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.ProjectID {
-				local.R.TraceRoutes = append(local.R.TraceRoutes, foreign)
-				if foreign.R == nil {
-					foreign.R = &traceRouteR{}
-				}
-				foreign.R.Project = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// AddEndpoints adds the given related objects to the existing relationships
-// of the project, optionally inserting them as new records.
-// Appends related to o.R.Endpoints.
-// Sets related.R.Project appropriately.
-func (o *Project) AddEndpoints(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Endpoint) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.ProjectID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"endpoints\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-				strmangle.WhereClause("\"", "\"", 2, endpointPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.ProjectID = o.ID
-		}
-	}
-
+	o.AccountID = related.ID
 	if o.R == nil {
 		o.R = &projectR{
-			Endpoints: related,
+			Account: related,
 		}
 	} else {
-		o.R.Endpoints = append(o.R.Endpoints, related...)
+		o.R.Account = related
 	}
 
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &endpointR{
-				Project: o,
-			}
-		} else {
-			rel.R.Project = o
-		}
-	}
-	return nil
-}
-
-// AddNetCats adds the given related objects to the existing relationships
-// of the project, optionally inserting them as new records.
-// Appends related to o.R.NetCats.
-// Sets related.R.Project appropriately.
-func (o *Project) AddNetCats(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*NetCat) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.ProjectID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"net_cats\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-				strmangle.WhereClause("\"", "\"", 2, netCatPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.ProjectID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &projectR{
-			NetCats: related,
+	if related.R == nil {
+		related.R = &accountR{
+			Projects: ProjectSlice{o},
 		}
 	} else {
-		o.R.NetCats = append(o.R.NetCats, related...)
+		related.R.Projects = append(related.R.Projects, o)
 	}
 
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &netCatR{
-				Project: o,
-			}
-		} else {
-			rel.R.Project = o
-		}
-	}
-	return nil
-}
-
-// AddPageSpeeds adds the given related objects to the existing relationships
-// of the project, optionally inserting them as new records.
-// Appends related to o.R.PageSpeeds.
-// Sets related.R.Project appropriately.
-func (o *Project) AddPageSpeeds(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*PageSpeed) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.ProjectID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"page_speeds\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-				strmangle.WhereClause("\"", "\"", 2, pageSpeedPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.ProjectID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &projectR{
-			PageSpeeds: related,
-		}
-	} else {
-		o.R.PageSpeeds = append(o.R.PageSpeeds, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &pageSpeedR{
-				Project: o,
-			}
-		} else {
-			rel.R.Project = o
-		}
-	}
-	return nil
-}
-
-// AddPings adds the given related objects to the existing relationships
-// of the project, optionally inserting them as new records.
-// Appends related to o.R.Pings.
-// Sets related.R.Project appropriately.
-func (o *Project) AddPings(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Ping) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.ProjectID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"pings\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-				strmangle.WhereClause("\"", "\"", 2, pingPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.ProjectID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &projectR{
-			Pings: related,
-		}
-	} else {
-		o.R.Pings = append(o.R.Pings, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &pingR{
-				Project: o,
-			}
-		} else {
-			rel.R.Project = o
-		}
-	}
-	return nil
-}
-
-// AddSchedulings adds the given related objects to the existing relationships
-// of the project, optionally inserting them as new records.
-// Appends related to o.R.Schedulings.
-// Sets related.R.Project appropriately.
-func (o *Project) AddSchedulings(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Scheduling) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.ProjectID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"schedulings\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-				strmangle.WhereClause("\"", "\"", 2, schedulingPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.ProjectID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &projectR{
-			Schedulings: related,
-		}
-	} else {
-		o.R.Schedulings = append(o.R.Schedulings, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &schedulingR{
-				Project: o,
-			}
-		} else {
-			rel.R.Project = o
-		}
-	}
-	return nil
-}
-
-// AddTraceRoutes adds the given related objects to the existing relationships
-// of the project, optionally inserting them as new records.
-// Appends related to o.R.TraceRoutes.
-// Sets related.R.Project appropriately.
-func (o *Project) AddTraceRoutes(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TraceRoute) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.ProjectID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"trace_routes\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-				strmangle.WhereClause("\"", "\"", 2, traceRoutePrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.ProjectID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &projectR{
-			TraceRoutes: related,
-		}
-	} else {
-		o.R.TraceRoutes = append(o.R.TraceRoutes, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &traceRouteR{
-				Project: o,
-			}
-		} else {
-			rel.R.Project = o
-		}
-	}
 	return nil
 }
 
@@ -1438,7 +633,7 @@ func Projects(mods ...qm.QueryMod) projectQuery {
 	return projectQuery{NewQuery(mods...)}
 }
 
-// FindProject retrieves a single record by SequenceId with an executor.
+// FindProject retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindProject(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Project, error) {
 	projectObj := &Project{}

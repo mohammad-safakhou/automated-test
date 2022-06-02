@@ -69,30 +69,6 @@ var EndpointTableColumns = struct {
 
 // Generated where
 
-type whereHelpernull_String struct{ field string }
-
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var EndpointWhere = struct {
 	ID        whereHelperint
 	Data      whereHelpernull_String
@@ -111,16 +87,13 @@ var EndpointWhere = struct {
 
 // EndpointRels is where relationship names are stored.
 var EndpointRels = struct {
-	Project             string
 	RelationDatacenters string
 }{
-	Project:             "Project",
 	RelationDatacenters: "RelationDatacenters",
 }
 
 // endpointR is where relationships are stored.
 type endpointR struct {
-	Project             *Project                `boil:"Project" json:"Project" toml:"Project" yaml:"Project"`
 	RelationDatacenters RelationDatacenterSlice `boil:"RelationDatacenters" json:"RelationDatacenters" toml:"RelationDatacenters" yaml:"RelationDatacenters"`
 }
 
@@ -418,17 +391,6 @@ func (q endpointQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (b
 	return count > 0, nil
 }
 
-// Project pointed to by the foreign key.
-func (o *Endpoint) Project(mods ...qm.QueryMod) projectQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.ProjectID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return Projects(queryMods...)
-}
-
 // RelationDatacenters retrieves all the relation_datacenter's RelationDatacenters with an executor.
 func (o *Endpoint) RelationDatacenters(mods ...qm.QueryMod) relationDatacenterQuery {
 	var queryMods []qm.QueryMod
@@ -441,110 +403,6 @@ func (o *Endpoint) RelationDatacenters(mods ...qm.QueryMod) relationDatacenterQu
 	)
 
 	return RelationDatacenters(queryMods...)
-}
-
-// LoadProject allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (endpointL) LoadProject(ctx context.Context, e boil.ContextExecutor, singular bool, maybeEndpoint interface{}, mods queries.Applicator) error {
-	var slice []*Endpoint
-	var object *Endpoint
-
-	if singular {
-		object = maybeEndpoint.(*Endpoint)
-	} else {
-		slice = *maybeEndpoint.(*[]*Endpoint)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &endpointR{}
-		}
-		args = append(args, object.ProjectID)
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &endpointR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ProjectID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ProjectID)
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`projects`),
-		qm.WhereIn(`projects.id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load Project")
-	}
-
-	var resultSlice []*Project
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Project")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for projects")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for projects")
-	}
-
-	if len(endpointAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.Project = foreign
-		if foreign.R == nil {
-			foreign.R = &projectR{}
-		}
-		foreign.R.Endpoints = append(foreign.R.Endpoints, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.ProjectID == foreign.ID {
-				local.R.Project = foreign
-				if foreign.R == nil {
-					foreign.R = &projectR{}
-				}
-				foreign.R.Endpoints = append(foreign.R.Endpoints, local)
-				break
-			}
-		}
-	}
-
-	return nil
 }
 
 // LoadRelationDatacenters allows an eager lookup of values, cached into the
@@ -640,53 +498,6 @@ func (endpointL) LoadRelationDatacenters(ctx context.Context, e boil.ContextExec
 				break
 			}
 		}
-	}
-
-	return nil
-}
-
-// SetProject of the endpoint to the related item.
-// Sets o.R.Project to related.
-// Adds o to related.R.Endpoints.
-func (o *Endpoint) SetProject(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Project) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"endpoints\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"project_id"}),
-		strmangle.WhereClause("\"", "\"", 2, endpointPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.ProjectID = related.ID
-	if o.R == nil {
-		o.R = &endpointR{
-			Project: related,
-		}
-	} else {
-		o.R.Project = related
-	}
-
-	if related.R == nil {
-		related.R = &projectR{
-			Endpoints: EndpointSlice{o},
-		}
-	} else {
-		related.R.Endpoints = append(related.R.Endpoints, o)
 	}
 
 	return nil
@@ -830,7 +641,7 @@ func Endpoints(mods ...qm.QueryMod) endpointQuery {
 	return endpointQuery{NewQuery(mods...)}
 }
 
-// FindEndpoint retrieves a single record by SequenceId with an executor.
+// FindEndpoint retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindEndpoint(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Endpoint, error) {
 	endpointObj := &Endpoint{}
