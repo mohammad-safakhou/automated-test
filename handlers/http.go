@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
@@ -14,7 +15,6 @@ import (
 	"test-manager/repos/influx"
 	"test-manager/usecase_models"
 	models "test-manager/usecase_models/boiler"
-	"time"
 )
 
 type HttpControllers interface {
@@ -103,7 +103,7 @@ func (hc *httpControllers) UpdateAccount(ctx echo.Context) error {
 		req.Password = string(plainText)
 	}
 
-	hc.accountRepo.UpdateAccounts(ctx.Request().Context(), models.Account{
+	err := hc.accountRepo.UpdateAccounts(ctx.Request().Context(), models.Account{
 		FirstName:   null.NewString(req.FirstName, true),
 		LastName:    null.NewString(req.LastName, true),
 		PhoneNumber: null.NewString(req.PhoneNumber, true),
@@ -121,10 +121,16 @@ func (hc *httpControllers) CreateProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	notif, err := json.Marshal(req.Notifications)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
 	projectId, err := hc.projectRepo.SaveProjects(ctx.Request().Context(), models.Project{
-		Title:    null.NewString(req.Title, true),
-		IsActive: null.NewBool(req.IsActive, true),
-		ExpireAt: null.NewTime(req.ExpireAt, true),
+		Title:         null.NewString(req.Title, true),
+		IsActive:      null.NewBool(req.IsActive, true),
+		ExpireAt:      null.NewTime(req.ExpireAt, true),
+		AccountID:     IdentityStruct.Id,
+		Notifications: null.NewJSON(notif, true),
 	})
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err.Error())
@@ -162,14 +168,20 @@ func (hc *httpControllers) GetProject(ctx echo.Context) error {
 
 	var projectsResponse []usecase_models.Project
 	for _, project := range projects {
+		var notifications usecase_models.Notifications
+		err = json.Unmarshal(project.Notifications.JSON, &notifications)
+		if err != nil {
+			continue
+		}
 		projectsResponse = append(projectsResponse, usecase_models.Project{
-			ID:        project.ID,
-			Title:     project.Title.String,
-			IsActive:  project.IsActive.Bool,
-			ExpireAt:  project.ExpireAt.Time,
-			UpdatedAt: project.UpdatedAt,
-			CreatedAt: project.CreatedAt,
-			DeletedAt: project.DeletedAt.Time,
+			ID:            project.ID,
+			Title:         project.Title.String,
+			IsActive:      project.IsActive.Bool,
+			Notifications: notifications,
+			ExpireAt:      project.ExpireAt.Time,
+			UpdatedAt:     project.UpdatedAt,
+			CreatedAt:     project.CreatedAt,
+			DeletedAt:     project.DeletedAt.Time,
 		})
 	}
 
@@ -182,15 +194,19 @@ func (hc *httpControllers) UpdateProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	hc.projectRepo.UpdateProjects(ctx.Request().Context(), models.Project{
-		Title:         null.String{},
-		IsActive:      null.Bool{},
-		ExpireAt:      null.Time{},
-		Notifications: null.JSON{},
-		UpdatedAt:     time.Time{},
-		CreatedAt:     time.Time{},
-		DeletedAt:     null.Time{},
+	notifications, err := json.Marshal(req.Notifications)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+	err = hc.projectRepo.UpdateProjects(ctx.Request().Context(), models.Project{
+		Title:         null.NewString(req.Title, true),
+		IsActive:      null.NewBool(req.IsActive, true),
+		ExpireAt:      null.NewTime(req.ExpireAt, true),
+		Notifications: null.NewJSON(notifications, true),
 	})
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
 
 	return ctx.JSON(http.StatusCreated, "")
 }
