@@ -76,7 +76,7 @@ func (e *endpointHandler) ExecuteEndpointRule(ctx context.Context, endpointRules
 					rule.Header[headerDependency.Key] = strings.Join(value[:], ",")
 				}
 
-				dataCenter, err := e.dataCentersRepo.GetDataCenters(ctx, dataCenter)
+				dataCenter, err := e.dataCentersRepo.GetDataCenter(ctx, dataCenter)
 				if err != nil {
 					log.Info("error on getting data center in executing endpoint rule: ", err)
 					waitGroup.Done()

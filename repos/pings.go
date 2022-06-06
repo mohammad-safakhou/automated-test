@@ -3,13 +3,16 @@ package repos
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"log"
+	"test-manager/usecase_models"
 	models "test-manager/usecase_models/boiler"
 )
 
 type PingRepository interface {
 	UpdatePing(ctx context.Context, Ping models.Ping) error
-	GetPing(ctx context.Context, projectId int) (models.Ping, error)
+	GetPing(ctx context.Context, projectId int) (pingUseCase []*usecase_models.Pings, err error)
 	SavePing(ctx context.Context, Ping models.Ping) (int, error)
 }
 
@@ -37,10 +40,19 @@ func (r *pingRepository) UpdatePing(ctx context.Context, ping models.Ping) error
 	return nil
 }
 
-func (r *pingRepository) GetPing(ctx context.Context, projectId int) (models.Ping, error) {
-	ping, err := models.Pings(models.PingWhere.ProjectID.EQ(projectId)).One(ctx, r.db)
+func (r *pingRepository) GetPing(ctx context.Context, projectId int) (pingUseCase []*usecase_models.Pings, err error) {
+	pings, err := models.Pings(models.PingWhere.ProjectID.EQ(projectId)).All(ctx, r.db)
 	if err != nil {
-		return models.Ping{}, err
+		return []*usecase_models.Pings{}, err
 	}
-	return *ping, nil
+
+	for _, value := range pings {
+		var ping usecase_models.Pings
+		err := json.Unmarshal([]byte(value.Data.String), &ping)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		pingUseCase = append(pingUseCase, &ping)
+	}
+	return pingUseCase, nil
 }

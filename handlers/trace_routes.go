@@ -32,7 +32,7 @@ func (e *traceRouteHandler) ExecuteTraceRouteRule(ctx context.Context, traceRout
 	for _, dataC := range traceRouteRules.Scheduling.DataCentersIds {
 		go func(dataCenter int) {
 			for _, rule := range traceRouteRules.TraceRouts {
-				dataCenter, err := e.dataCentersRepo.GetDataCenters(ctx, dataCenter)
+				dataCenter, err := e.dataCentersRepo.GetDataCenter(ctx, dataCenter)
 				if err != nil {
 					log.Info("error on getting data center in executing trace rote rule: ", err)
 					waitGroup.Done()

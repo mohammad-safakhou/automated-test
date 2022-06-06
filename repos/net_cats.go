@@ -3,13 +3,16 @@ package repos
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"log"
+	"test-manager/usecase_models"
 	models "test-manager/usecase_models/boiler"
 )
 
 type NetCatRepository interface {
 	UpdateNetCat(ctx context.Context, NetCat models.NetCat) error
-	GetNetCat(ctx context.Context, projectId int) (models.NetCat, error)
+	GetNetCat(ctx context.Context, projectId int) (netCatUseCase []*usecase_models.NetCats, err error)
 	SaveNetCat(ctx context.Context, NetCat models.NetCat) (int, error)
 }
 
@@ -37,10 +40,19 @@ func (r *netCatRepository) UpdateNetCat(ctx context.Context, netCat models.NetCa
 	return nil
 }
 
-func (r *netCatRepository) GetNetCat(ctx context.Context, projectId int) (models.NetCat, error) {
-	netCat, err := models.NetCats(models.NetCatWhere.ProjectID.EQ(projectId)).One(ctx, r.db)
+func (r *netCatRepository) GetNetCat(ctx context.Context, projectId int) (netCatUseCase []*usecase_models.NetCats, err error) {
+	netCats, err := models.NetCats(models.NetCatWhere.ProjectID.EQ(projectId)).All(ctx, r.db)
 	if err != nil {
-		return models.NetCat{}, err
+		return []*usecase_models.NetCats{}, err
 	}
-	return *netCat, nil
+
+	for _, value := range netCats {
+		var netCat usecase_models.NetCats
+		err := json.Unmarshal([]byte(value.Data.String), &netCat)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		netCatUseCase = append(netCatUseCase, &netCat)
+	}
+	return netCatUseCase, nil
 }

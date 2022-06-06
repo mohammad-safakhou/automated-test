@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/pem"
 	"test-manager/repos"
 	"test-manager/utils"
 )
@@ -21,7 +22,12 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	PrivateKey, err = x509.ParsePKCS1PrivateKey([]byte(privateStr))
+
+	block, _ := pem.Decode([]byte(privateStr))
+	if block == nil {
+		panic("failed to parse PEM block containing the key")
+	}
+	PrivateKey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		panic(err)
 	}

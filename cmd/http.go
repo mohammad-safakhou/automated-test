@@ -57,11 +57,14 @@ var httpCmd = &cobra.Command{
 		}
 		defer influxClient.Close()
 
+		accountRepo := repos.NewAccountsRepositoryRepository(psqlDb)
+		projectRepo := repos.NewProjectsRepositoryRepository(psqlDb)
 		endpointRepo := repos.NewEndpointRepository(psqlDb)
 		netCatRepo := repos.NewNetCatRepository(psqlDb)
 		pageSpeedRepo := repos.NewPageSpeedRepository(psqlDb)
 		pingRepo := repos.NewPingRepository(psqlDb)
 		traceRouteRepo := repos.NewTraceRouteRepository(psqlDb)
+		aggregateRepo := repos.NewAggregateRepository(psqlDb, endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo)
 		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 		endpointReportRepo := influx.NewEndpointReportRepository(writeAPI, queryAPI, psqlDb)
 		netCatReportRepo := influx.NewNetCatsReportRepository(writeAPI, queryAPI, psqlDb)
@@ -72,18 +75,38 @@ var httpCmd = &cobra.Command{
 		agentHandler := handlers.NewAgentHandler()
 		//endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
 		ruleHandler := handlers.NewRulesHandler(endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
-		controllers := handlers.NewHttpControllers(ruleHandler, endpointReportRepo, netCatReportRepo,
+		controllers := handlers.NewHttpControllers(
+			ruleHandler,
+			accountRepo,
+			projectRepo,
+			aggregateRepo,
+			endpointReportRepo,
+			netCatReportRepo,
 			pageSPeedReportRepo,
 			pingReportRepo,
 			traceRouteReportRepo)
 
 		e.GET("/", controllers.Hello)
 		e.POST("/rules/register", controllers.RegisterRules)
+		e.GET("/rules/:project_id", controllers.GetRules)
 		e.POST("/report/endpoint/:project_id", controllers.ReportEndpoint)
 		e.POST("/report/net_cat/:project_id", controllers.ReportNetCat)
 		e.POST("/report/page_speed/:project_id", controllers.ReportPageSpeed)
 		e.POST("/report/ping/:project_id", controllers.ReportPing)
 		e.POST("/report/trace_route/:project_id", controllers.ReportTraceRoute)
+
+		e.GET("/accounts/:account_id", controllers.GetAccount)
+		e.PUT("/accounts/:account_id", controllers.UpdateAccount)
+		e.POST("/projects", controllers.CreateProject)
+		e.GET("/projects/:project_id", controllers.GetProject)
+		e.PUT("/projects/:project_id", controllers.UpdateProject)
+		e.POST("/datacenters", controllers.CreateDatacenter)
+		e.GET("/datacenters/:datacenter_id", controllers.GetDatacenter)
+		e.PUT("/datacenters/:datacenter_id", controllers.UpdateDatacenter)
+
+		e.POST("/register", controllers.Register)
+		e.POST("/auth", controllers.Auth)
+		e.POST("/auth/info", controllers.AuthInfo)
 
 		// Start server
 		go func() {

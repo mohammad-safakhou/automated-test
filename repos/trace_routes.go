@@ -3,13 +3,16 @@ package repos
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"log"
+	"test-manager/usecase_models"
 	models "test-manager/usecase_models/boiler"
 )
 
 type TraceRouteRepository interface {
 	UpdateTraceRoute(ctx context.Context, TraceRoute models.TraceRoute) error
-	GetTraceRoute(ctx context.Context, projectId int) (models.TraceRoute, error)
+	GetTraceRoute(ctx context.Context, projectId int) (traceRouteUseCase []*usecase_models.TraceRoutes, err error)
 	SaveTraceRoute(ctx context.Context, TraceRoute models.TraceRoute) (int, error)
 }
 
@@ -37,10 +40,19 @@ func (r traceRouteRepository) UpdateTraceRoute(ctx context.Context, traceRoute m
 	return nil
 }
 
-func (r *traceRouteRepository) GetTraceRoute(ctx context.Context, projectId int) (models.TraceRoute, error) {
-	traceRoute, err := models.TraceRoutes(models.TraceRouteWhere.ProjectID.EQ(projectId)).One(ctx, r.db)
+func (r *traceRouteRepository) GetTraceRoute(ctx context.Context, projectId int) (traceRouteUseCase []*usecase_models.TraceRoutes, err error) {
+	traceRoutes, err := models.TraceRoutes(models.TraceRouteWhere.ProjectID.EQ(projectId)).All(ctx, r.db)
 	if err != nil {
-		return models.TraceRoute{}, err
+		return []*usecase_models.TraceRoutes{}, err
 	}
-	return *traceRoute, nil
+
+	for _, value := range traceRoutes {
+		var traceRoute usecase_models.TraceRoutes
+		err := json.Unmarshal([]byte(value.Data.String), &traceRoute)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		traceRouteUseCase = append(traceRouteUseCase, &traceRoute)
+	}
+	return traceRouteUseCase, nil
 }

@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
@@ -20,6 +21,7 @@ import (
 type HttpControllers interface {
 	Hello(ctx echo.Context) error
 	RegisterRules(ctx echo.Context) error
+	GetRules(ctx echo.Context) error
 	ReportEndpoint(ctx echo.Context) error
 	ReportNetCat(ctx echo.Context) error
 	ReportPageSpeed(ctx echo.Context) error
@@ -31,6 +33,9 @@ type HttpControllers interface {
 	CreateProject(ctx echo.Context) error
 	GetProject(ctx echo.Context) error
 	UpdateProject(ctx echo.Context) error
+	CreateDatacenter(ctx echo.Context) error
+	GetDatacenter(ctx echo.Context) error
+	UpdateDatacenter(ctx echo.Context) error
 
 	Register(ctx echo.Context) error
 	Auth(ctx echo.Context) error
@@ -41,6 +46,8 @@ type httpControllers struct {
 	rulesHandler               RulesHandler
 	accountRepo                repos.AccountsRepository
 	projectRepo                repos.ProjectsRepository
+	datacenterRepo             repos.DataCentersRepository
+	aggregateRepository        repos.AggregateRepository
 	endpointReportRepository   influx.EndpointReportRepository
 	netCatsReportRepository    influx.NetCatsReportRepository
 	pageSpeedReportRepository  influx.PageSpeedReportRepository
@@ -49,6 +56,9 @@ type httpControllers struct {
 }
 
 func NewHttpControllers(rulesHandler RulesHandler,
+	accountRepo repos.AccountsRepository,
+	projectRepo repos.ProjectsRepository,
+	aggregateRepository repos.AggregateRepository,
 	endpointReportRepository influx.EndpointReportRepository,
 	netCatsReportRepository influx.NetCatsReportRepository,
 	pageSpeedReportRepository influx.PageSpeedReportRepository,
@@ -56,6 +66,9 @@ func NewHttpControllers(rulesHandler RulesHandler,
 	traceRouteReportRepository influx.TraceRouteReportRepository) HttpControllers {
 	return &httpControllers{
 		rulesHandler:               rulesHandler,
+		accountRepo:                accountRepo,
+		projectRepo:                projectRepo,
+		aggregateRepository:        aggregateRepository,
 		endpointReportRepository:   endpointReportRepository,
 		netCatsReportRepository:    netCatsReportRepository,
 		pageSpeedReportRepository:  pageSpeedReportRepository,
@@ -111,6 +124,9 @@ func (hc *httpControllers) UpdateAccount(ctx echo.Context) error {
 		Username:    null.NewString(req.Username, true),
 		Password:    null.NewString(req.Password, true),
 	})
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
 
 	return ctx.JSON(http.StatusCreated, "")
 }
@@ -144,8 +160,8 @@ func (hc *httpControllers) CreateProject(ctx echo.Context) error {
 func (hc *httpControllers) GetProject(ctx echo.Context) error {
 	projectId := 0
 	var err error
-	if ctx.QueryParam("project_id") != "" {
-		projectId, err = strconv.Atoi(ctx.QueryParam("project_id"))
+	if ctx.Param("project_id") != "" {
+		projectId, err = strconv.Atoi(ctx.Param("project_id"))
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -194,15 +210,102 @@ func (hc *httpControllers) UpdateProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	projectId, err := strconv.Atoi(ctx.Param("project_id"))
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	notifications, err := json.Marshal(req.Notifications)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 	err = hc.projectRepo.UpdateProjects(ctx.Request().Context(), models.Project{
+		ID:            projectId,
 		Title:         null.NewString(req.Title, true),
 		IsActive:      null.NewBool(req.IsActive, true),
 		ExpireAt:      null.NewTime(req.ExpireAt, true),
 		Notifications: null.NewJSON(notifications, true),
+	})
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusCreated, "")
+}
+
+func (hc *httpControllers) CreateDatacenter(ctx echo.Context) error {
+	req := new(usecase_models.Datacenter)
+	if err := ctx.Bind(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	datacenterId, err := hc.datacenterRepo.SaveDataCenters(ctx.Request().Context(), models.Datacenter{
+		Baseurl:        req.Baseurl,
+		Title:          req.Title,
+		ConnectionRate: req.ConnectionRate,
+	})
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return ctx.JSON(http.StatusOK, usecase_models.CreateDatacenterResponse{DatacenterId: datacenterId})
+}
+
+func (hc *httpControllers) GetDatacenter(ctx echo.Context) error {
+	datacenterId := 0
+	var err error
+	if ctx.QueryParam("datacenter_id") != "" {
+		datacenterId, err = strconv.Atoi(ctx.QueryParam("datacenter_id"))
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		}
+	}
+
+	var datacenters []*models.Datacenter
+	if datacenterId != 0 {
+		datacenter, err := hc.datacenterRepo.GetDataCenter(ctx.Request().Context(), datacenterId)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		}
+		datacenters = append(datacenters, &datacenter)
+	} else {
+		datacenters, err = hc.datacenterRepo.GetDataCenters(ctx.Request().Context())
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		}
+		datacenters = append(datacenters, datacenters...)
+	}
+
+	var datacentersResponse []usecase_models.Datacenter
+	for _, datacenter := range datacenters {
+		datacentersResponse = append(datacentersResponse, usecase_models.Datacenter{
+			ID:             datacenter.ID,
+			Baseurl:        datacenter.Baseurl,
+			Title:          datacenter.Title,
+			ConnectionRate: datacenter.ConnectionRate,
+			UpdatedAt:      datacenter.UpdatedAt,
+			CreatedAt:      datacenter.CreatedAt,
+			DeletedAt:      datacenter.DeletedAt,
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, datacentersResponse)
+}
+
+func (hc *httpControllers) UpdateDatacenter(ctx echo.Context) error {
+	req := new(usecase_models.Datacenter)
+	if err := ctx.Bind(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	datacenterId, err := strconv.Atoi(ctx.Param("datacenter_id"))
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+	err = hc.datacenterRepo.UpdateDataCenters(ctx.Request().Context(), models.Datacenter{
+		ID:             datacenterId,
+		Baseurl:        req.Baseurl,
+		Title:          req.Title,
+		ConnectionRate: req.ConnectionRate,
 	})
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err.Error())
@@ -245,7 +348,7 @@ func (hc *httpControllers) Auth(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	account, err := hc.accountRepo.GetAccounts(ctx.Request().Context(), req.Username)
+	account, err := hc.accountRepo.GetAccounts(ctx.Request().Context(), IdentityStruct.Id)
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, err.Error())
 	}
@@ -273,7 +376,13 @@ func (hc *httpControllers) Auth(ctx echo.Context) error {
 }
 
 func (hc *httpControllers) AuthInfo(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, string(x509.MarshalPKCS1PublicKey(&PrivateKey.PublicKey)))
+	resp := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: x509.MarshalPKCS1PublicKey(&PrivateKey.PublicKey),
+		},
+	)
+	return ctx.JSON(http.StatusOK, resp)
 }
 
 func (hc *httpControllers) RegisterRules(ctx echo.Context) error {
@@ -287,6 +396,18 @@ func (hc *httpControllers) RegisterRules(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, "ok")
+}
+
+func (hc *httpControllers) GetRules(ctx echo.Context) error {
+	projectId, err := strconv.Atoi(ctx.Param("project_id"))
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+	subWorks, err := hc.aggregateRepository.AggregateAllRuleSubWorks(ctx.Request().Context(), projectId)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return ctx.JSON(http.StatusOK, subWorks)
 }
 
 type ReportEndpointModel struct {

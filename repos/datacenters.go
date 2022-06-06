@@ -9,7 +9,8 @@ import (
 
 type DataCentersRepository interface {
 	UpdateDataCenters(ctx context.Context, dataCenter models.Datacenter) error
-	GetDataCenters(ctx context.Context, id int) (models.Datacenter, error)
+	GetDataCenter(ctx context.Context, id int) (models.Datacenter, error)
+	GetDataCenters(ctx context.Context) ([]*models.Datacenter, error)
 	SaveDataCenters(ctx context.Context, dataCenter models.Datacenter) (int, error)
 }
 
@@ -37,10 +38,18 @@ func (r *dataCentersRepository) UpdateDataCenters(ctx context.Context, dataCente
 	return nil
 }
 
-func (r *dataCentersRepository) GetDataCenters(ctx context.Context, id int) (models.Datacenter, error) {
+func (r *dataCentersRepository) GetDataCenter(ctx context.Context, id int) (models.Datacenter, error) {
 	datacenter, err := models.Datacenters(models.DatacenterWhere.ID.EQ(id)).One(ctx, r.db)
 	if err != nil {
 		return models.Datacenter{}, err
 	}
 	return *datacenter, nil
+}
+
+func (r *dataCentersRepository) GetDataCenters(ctx context.Context) ([]*models.Datacenter, error) {
+	datacenters, err := models.Datacenters().All(ctx, r.db)
+	if err != nil {
+		return []*models.Datacenter{}, err
+	}
+	return datacenters, nil
 }

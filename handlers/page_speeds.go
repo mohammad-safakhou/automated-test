@@ -32,7 +32,7 @@ func (e *pageSpeedHandler) ExecutePageSpeedRule(ctx context.Context, pageSpeedRu
 	for _, dataC := range pageSpeedRules.Scheduling.DataCentersIds {
 		go func(dataCenter int) {
 			for _, rule := range pageSpeedRules.PageSpeed {
-				dataCenter, err := e.dataCentersRepo.GetDataCenters(ctx, dataCenter)
+				dataCenter, err := e.dataCentersRepo.GetDataCenter(ctx, dataCenter)
 				if err != nil {
 					log.Info("error on getting data center in executing page speed rule: ", err)
 					waitGroup.Done()

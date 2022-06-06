@@ -3,6 +3,7 @@ module test-manager
 go 1.17
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/hibiken/asynq v0.23.0
