@@ -9,8 +9,8 @@ services:
       context: .
     environment:
       - cmdrun=http
-#    ports:
-#      - 8080:8080
+    ports:
+      - 10000:10000
     command: ["./app", "http"]
   app-tasks:
     container_name: automated_test-tasks
