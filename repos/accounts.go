@@ -3,6 +3,7 @@ package repos
 import (
 	"context"
 	"database/sql"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	models "test-manager/usecase_models/boiler"
 )
@@ -10,6 +11,7 @@ import (
 type AccountsRepository interface {
 	UpdateAccounts(ctx context.Context, Account models.Account) error
 	GetAccounts(ctx context.Context, id int) (models.Account, error)
+	GetAccountByUsername(ctx context.Context, username string) (models.Account, error)
 	SaveAccounts(ctx context.Context, Account models.Account) (int, error)
 }
 
@@ -39,6 +41,14 @@ func (r *accountsRepository) UpdateAccounts(ctx context.Context, Account models.
 
 func (r *accountsRepository) GetAccounts(ctx context.Context, id int) (models.Account, error) {
 	Account, err := models.Accounts(models.AccountWhere.ID.EQ(id)).One(ctx, r.db)
+	if err != nil {
+		return models.Account{}, err
+	}
+	return *Account, nil
+}
+
+func (r *accountsRepository) GetAccountByUsername(ctx context.Context, username string) (models.Account, error) {
+	Account, err := models.Accounts(models.AccountWhere.Username.EQ(null.NewString(username, true))).One(ctx, r.db)
 	if err != nil {
 		return models.Account{}, err
 	}

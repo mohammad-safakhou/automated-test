@@ -10,7 +10,7 @@ type Project struct {
 	IsActive      bool          `json:"is_active"`
 	Notifications Notifications `json:"notifications"`
 	AccountId     int           `json:"account_id"`
-	ExpireAt      time.Time     `json:"expire_at"`
+	ExpireAt      string        `json:"expire_at"`
 	UpdatedAt     time.Time     `json:"updated_at"`
 	CreatedAt     time.Time     `json:"created_at"`
 	DeletedAt     time.Time     `json:"deleted_at"`

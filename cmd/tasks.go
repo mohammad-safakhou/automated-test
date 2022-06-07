@@ -71,7 +71,7 @@ var consumeTasksCmd = &cobra.Command{
 			Password:    redisClient.Options().Password,
 		})
 		taskPusher := push.NewTaskPush(asynqClient)
-		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "aiNlFChQ9RswcCapCtLZUnH2QkleksShwQvnrtTW7obAmh0W5bW7yiLqyQwrX-pSpQc0yUFliW0hgdd4kdk96A==", "http://localhost:8086", "test", "my-bucket")
+		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "GNDVtSQxQ_weUoyLpsWQIl_PK62ugeFJxQ2KbOP-lJZ5SRpu2cuQmkP-QQF78b_EfrI_mWrg5kxnNDDUCnMb6A==", "http://localhost:8086", "test", "my-bucket")
 		if err != nil {
 			panic(err)
 		}

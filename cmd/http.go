@@ -51,7 +51,7 @@ var httpCmd = &cobra.Command{
 			Password:    redisClient.Options().Password,
 		})
 		taskPusher := push.NewTaskPush(asynqClient)
-		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "aiNlFChQ9RswcCapCtLZUnH2QkleksShwQvnrtTW7obAmh0W5bW7yiLqyQwrX-pSpQc0yUFliW0hgdd4kdk96A==", "http://localhost:8086", "test", "my-bucket")
+		influxClient, writeAPI, queryAPI, err := utils.CreateInfluxDBConnection(context.TODO(), "GNDVtSQxQ_weUoyLpsWQIl_PK62ugeFJxQ2KbOP-lJZ5SRpu2cuQmkP-QQF78b_EfrI_mWrg5kxnNDDUCnMb6A==", "http://localhost:8086", "test", "my-bucket")
 		if err != nil {
 			panic(err)
 		}
@@ -79,6 +79,7 @@ var httpCmd = &cobra.Command{
 			ruleHandler,
 			accountRepo,
 			projectRepo,
+			dataCenterRepo,
 			aggregateRepo,
 			endpointReportRepo,
 			netCatReportRepo,
@@ -87,26 +88,26 @@ var httpCmd = &cobra.Command{
 			traceRouteReportRepo)
 
 		e.GET("/", controllers.Hello)
-		e.POST("/rules/register", controllers.RegisterRules)
-		e.GET("/rules/:project_id", controllers.GetRules)
-		e.POST("/report/endpoint/:project_id", controllers.ReportEndpoint)
-		e.POST("/report/net_cat/:project_id", controllers.ReportNetCat)
-		e.POST("/report/page_speed/:project_id", controllers.ReportPageSpeed)
-		e.POST("/report/ping/:project_id", controllers.ReportPing)
-		e.POST("/report/trace_route/:project_id", controllers.ReportTraceRoute)
+		e.POST("/rules/register", controllers.RegisterRules, handlers.WithAuth())
+		e.GET("/rules/:project_id", controllers.GetRules, handlers.WithAuth())
+		e.POST("/report/endpoint/:project_id", controllers.ReportEndpoint, handlers.WithAuth())
+		e.POST("/report/net_cat/:project_id", controllers.ReportNetCat, handlers.WithAuth())
+		e.POST("/report/page_speed/:project_id", controllers.ReportPageSpeed, handlers.WithAuth())
+		e.POST("/report/ping/:project_id", controllers.ReportPing, handlers.WithAuth())
+		e.POST("/report/trace_route/:project_id", controllers.ReportTraceRoute, handlers.WithAuth())
 
-		e.GET("/accounts/:account_id", controllers.GetAccount)
-		e.PUT("/accounts/:account_id", controllers.UpdateAccount)
-		e.POST("/projects", controllers.CreateProject)
-		e.GET("/projects/:project_id", controllers.GetProject)
-		e.PUT("/projects/:project_id", controllers.UpdateProject)
-		e.POST("/datacenters", controllers.CreateDatacenter)
-		e.GET("/datacenters/:datacenter_id", controllers.GetDatacenter)
-		e.PUT("/datacenters/:datacenter_id", controllers.UpdateDatacenter)
+		e.GET("/accounts/:account_id", controllers.GetAccount, handlers.WithAuth())
+		e.PUT("/accounts/:account_id", controllers.UpdateAccount, handlers.WithAuth())
+		e.POST("/projects", controllers.CreateProject, handlers.WithAuth())
+		e.GET("/projects/:project_id", controllers.GetProject, handlers.WithAuth())
+		e.PUT("/projects/:project_id", controllers.UpdateProject, handlers.WithAuth())
+		e.POST("/datacenters", controllers.CreateDatacenter, handlers.WithAuth())
+		e.GET("/datacenters/:datacenter_id", controllers.GetDatacenter, handlers.WithAuth())
+		e.PUT("/datacenters/:datacenter_id", controllers.UpdateDatacenter, handlers.WithAuth())
 
 		e.POST("/register", controllers.Register)
 		e.POST("/auth", controllers.Auth)
-		e.POST("/auth/info", controllers.AuthInfo)
+		e.GET("/auth/info", controllers.AuthInfo)
 
 		// Start server
 		go func() {

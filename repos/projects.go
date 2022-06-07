@@ -31,7 +31,7 @@ func (r *projectsRepository) SaveProjects(ctx context.Context, Project models.Pr
 }
 
 func (r *projectsRepository) UpdateProjects(ctx context.Context, Project models.Project) error {
-	_, err := Project.Update(ctx, r.db, boil.Infer())
+	_, err := Project.Update(ctx, r.db, boil.Blacklist("account_id"))
 	if err != nil {
 		return err
 	}

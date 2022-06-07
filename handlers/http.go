@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"context"
-	"crypto"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
@@ -16,6 +14,8 @@ import (
 	"test-manager/repos/influx"
 	"test-manager/usecase_models"
 	models "test-manager/usecase_models/boiler"
+	"test-manager/utils"
+	"time"
 )
 
 type HttpControllers interface {
@@ -58,6 +58,7 @@ type httpControllers struct {
 func NewHttpControllers(rulesHandler RulesHandler,
 	accountRepo repos.AccountsRepository,
 	projectRepo repos.ProjectsRepository,
+	datacenterRepo repos.DataCentersRepository,
 	aggregateRepository repos.AggregateRepository,
 	endpointReportRepository influx.EndpointReportRepository,
 	netCatsReportRepository influx.NetCatsReportRepository,
@@ -68,6 +69,7 @@ func NewHttpControllers(rulesHandler RulesHandler,
 		rulesHandler:               rulesHandler,
 		accountRepo:                accountRepo,
 		projectRepo:                projectRepo,
+		datacenterRepo:             datacenterRepo,
 		aggregateRepository:        aggregateRepository,
 		endpointReportRepository:   endpointReportRepository,
 		netCatsReportRepository:    netCatsReportRepository,
@@ -109,7 +111,7 @@ func (hc *httpControllers) UpdateAccount(ctx echo.Context) error {
 	}
 
 	if req.Password != "" {
-		plainText, err := PrivateKey.Decrypt(nil, []byte(req.Password), &rsa.OAEPOptions{Hash: crypto.SHA256})
+		plainText, err := utils.RSAOAEPDecrypt(req.Password, *PrivateKey)
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -117,6 +119,7 @@ func (hc *httpControllers) UpdateAccount(ctx echo.Context) error {
 	}
 
 	err := hc.accountRepo.UpdateAccounts(ctx.Request().Context(), models.Account{
+		ID:          IdentityStruct.Id,
 		FirstName:   null.NewString(req.FirstName, true),
 		LastName:    null.NewString(req.LastName, true),
 		PhoneNumber: null.NewString(req.PhoneNumber, true),
@@ -141,10 +144,15 @@ func (hc *httpControllers) CreateProject(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
+	expire, err := time.Parse("2006-01-02 15:04:05", req.ExpireAt)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	projectId, err := hc.projectRepo.SaveProjects(ctx.Request().Context(), models.Project{
 		Title:         null.NewString(req.Title, true),
 		IsActive:      null.NewBool(req.IsActive, true),
-		ExpireAt:      null.NewTime(req.ExpireAt, true),
+		ExpireAt:      null.NewTime(expire, true),
 		AccountID:     IdentityStruct.Id,
 		Notifications: null.NewJSON(notif, true),
 	})
@@ -175,11 +183,11 @@ func (hc *httpControllers) GetProject(ctx echo.Context) error {
 		}
 		projects = append(projects, &project)
 	} else {
-		projects, err = hc.projectRepo.GetProjects(ctx.Request().Context(), IdentityStruct.Id)
+		projectss, err := hc.projectRepo.GetProjects(ctx.Request().Context(), IdentityStruct.Id)
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, err.Error())
 		}
-		projects = append(projects, projects...)
+		projects = append(projects, projectss...)
 	}
 
 	var projectsResponse []usecase_models.Project
@@ -194,7 +202,7 @@ func (hc *httpControllers) GetProject(ctx echo.Context) error {
 			Title:         project.Title.String,
 			IsActive:      project.IsActive.Bool,
 			Notifications: notifications,
-			ExpireAt:      project.ExpireAt.Time,
+			ExpireAt:      project.ExpireAt.Time.String(),
 			UpdatedAt:     project.UpdatedAt,
 			CreatedAt:     project.CreatedAt,
 			DeletedAt:     project.DeletedAt.Time,
@@ -219,11 +227,17 @@ func (hc *httpControllers) UpdateProject(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
+
+	expire, err := time.Parse("2006-01-02 15:04:05", req.ExpireAt)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	err = hc.projectRepo.UpdateProjects(ctx.Request().Context(), models.Project{
 		ID:            projectId,
 		Title:         null.NewString(req.Title, true),
 		IsActive:      null.NewBool(req.IsActive, true),
-		ExpireAt:      null.NewTime(req.ExpireAt, true),
+		ExpireAt:      null.NewTime(expire, true),
 		Notifications: null.NewJSON(notifications, true),
 	})
 	if err != nil {
@@ -253,8 +267,8 @@ func (hc *httpControllers) CreateDatacenter(ctx echo.Context) error {
 func (hc *httpControllers) GetDatacenter(ctx echo.Context) error {
 	datacenterId := 0
 	var err error
-	if ctx.QueryParam("datacenter_id") != "" {
-		datacenterId, err = strconv.Atoi(ctx.QueryParam("datacenter_id"))
+	if ctx.Param("datacenter_id") != "" {
+		datacenterId, err = strconv.Atoi(ctx.Param("datacenter_id"))
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -268,11 +282,11 @@ func (hc *httpControllers) GetDatacenter(ctx echo.Context) error {
 		}
 		datacenters = append(datacenters, &datacenter)
 	} else {
-		datacenters, err = hc.datacenterRepo.GetDataCenters(ctx.Request().Context())
+		datacenterss, err := hc.datacenterRepo.GetDataCenters(ctx.Request().Context())
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, err.Error())
 		}
-		datacenters = append(datacenters, datacenters...)
+		datacenters = append(datacenters, datacenterss...)
 	}
 
 	var datacentersResponse []usecase_models.Datacenter
@@ -320,7 +334,7 @@ func (hc *httpControllers) Register(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	plainText, err := PrivateKey.Decrypt(nil, []byte(req.Password), &rsa.OAEPOptions{Hash: crypto.SHA256})
+	plainText, err := utils.RSAOAEPDecrypt(req.Password, *PrivateKey)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -348,17 +362,17 @@ func (hc *httpControllers) Auth(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	account, err := hc.accountRepo.GetAccounts(ctx.Request().Context(), IdentityStruct.Id)
+	account, err := hc.accountRepo.GetAccountByUsername(ctx.Request().Context(), req.Username)
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, err.Error())
 	}
 
-	plainText, err := PrivateKey.Decrypt(nil, []byte(req.Password), &rsa.OAEPOptions{Hash: crypto.SHA256})
+	plainText, err := utils.RSAOAEPDecrypt(req.Password, *PrivateKey)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err.Error())
+		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if string(plainText) != account.Password.String {
+	if plainText != account.Password.String {
 		return ctx.JSON(http.StatusUnauthorized, "password or username incorrect")
 	}
 

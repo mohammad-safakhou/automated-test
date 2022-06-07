@@ -24,7 +24,7 @@ create table if not exists projects
     id SERIAL primary key,
     title text ,
     is_active bool,
-    expire_at time,
+    expire_at TIMESTAMP ,
     account_id int NOT NULL,
     notifications jsonb,
 
