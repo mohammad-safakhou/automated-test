@@ -52,6 +52,7 @@ func (r *endpointRepository) GetEndpoint(ctx context.Context, projectId int) (en
 		if err != nil {
 			log.Println(err.Error())
 		}
+		endpoint.Scheduling.PipelineId = value.ID
 		endpointsUseCase = append(endpointsUseCase, &endpoint)
 	}
 	return endpointsUseCase, nil
