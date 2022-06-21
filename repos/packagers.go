@@ -18,7 +18,7 @@ type packagesRepository struct {
 	db *sql.DB
 }
 
-func NewPackagesRepositoryRepository(db *sql.DB) PackagesRepository {
+func NewPackagesRepository(db *sql.DB) PackagesRepository {
 	return &packagesRepository{db: db}
 }
 

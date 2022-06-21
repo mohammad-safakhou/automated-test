@@ -65,6 +65,7 @@ var httpCmd = &cobra.Command{
 		pingRepo := repos.NewPingRepository(psqlDb)
 		traceRouteRepo := repos.NewTraceRouteRepository(psqlDb)
 		aggregateRepo := repos.NewAggregateRepository(psqlDb, endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo)
+		packageRepo := repos.NewPackagesRepository(psqlDb)
 		dataCenterRepo := repos.NewDataCentersRepositoryRepository(psqlDb)
 		endpointReportRepo := influx.NewEndpointReportRepository(writeAPI, queryAPI, psqlDb)
 		netCatReportRepo := influx.NewNetCatsReportRepository(writeAPI, queryAPI, psqlDb)
@@ -81,6 +82,7 @@ var httpCmd = &cobra.Command{
 			projectRepo,
 			dataCenterRepo,
 			aggregateRepo,
+			packageRepo,
 			endpointReportRepo,
 			netCatReportRepo,
 			pageSPeedReportRepo,
