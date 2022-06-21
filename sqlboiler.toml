@@ -1,6 +1,6 @@
 [psql]
   dbname = "tester"
-  host   = "localhost"
+  host   = "93.113.233.131"
   port   = 5432
   user   = "root"
   pass   = "root"

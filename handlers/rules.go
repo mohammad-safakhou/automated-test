@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/volatiletech/null/v8"
 	"test-manager/repos"
 	"test-manager/tasks/push"
@@ -15,6 +17,7 @@ type RulesHandler interface {
 }
 
 type rulesHandler struct {
+	projectRepo     repos.ProjectsRepository
 	endpointRepo    repos.EndpointRepository
 	netCatRepo      repos.NetCatRepository
 	pageSpeedRepo   repos.PageSpeedRepository
@@ -26,6 +29,7 @@ type rulesHandler struct {
 }
 
 func NewRulesHandler(
+	projectRepo repos.ProjectsRepository,
 	endpointRepo repos.EndpointRepository,
 	netCatRepo repos.NetCatRepository,
 	pageSpeedRepo repos.PageSpeedRepository,
@@ -36,6 +40,7 @@ func NewRulesHandler(
 	agentHandler AgentHandler,
 ) RulesHandler {
 	return &rulesHandler{
+		projectRepo:     projectRepo,
 		endpointRepo:    endpointRepo,
 		netCatRepo:      netCatRepo,
 		pageSpeedRepo:   pageSpeedRepo,
@@ -47,7 +52,40 @@ func NewRulesHandler(
 	}
 }
 
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.RulesRequest) error {
+	projects, err := r.projectRepo.GetProjects(ctx, IdentityStruct.Id)
+	if err != nil {
+		return err
+	}
+	var projectIds []int
+	for _, value := range projects {
+		projectIds = append(projectIds, value.ID)
+	}
+	if !contains(projectIds, rules.Endpoints.Scheduling.ProjectId) {
+		return errors.New(fmt.Sprintf("project id : %d is not your project", rules.Endpoints.Scheduling.ProjectId))
+	}
+	if !contains(projectIds, rules.NetCats.Scheduling.ProjectId) {
+		return errors.New(fmt.Sprintf("project id : %d is not your project", rules.NetCats.Scheduling.ProjectId))
+	}
+	if !contains(projectIds, rules.Pings.Scheduling.ProjectId) {
+		return errors.New(fmt.Sprintf("project id : %d is not your project", rules.Pings.Scheduling.ProjectId))
+	}
+	if !contains(projectIds, rules.TraceRoutes.Scheduling.ProjectId) {
+		return errors.New(fmt.Sprintf("project id : %d is not your project", rules.TraceRoutes.Scheduling.ProjectId))
+	}
+	if !contains(projectIds, rules.PageSpeed.Scheduling.ProjectId) {
+		return errors.New(fmt.Sprintf("project id : %d is not your project", rules.PageSpeed.Scheduling.ProjectId))
+	}
+
 	if len(rules.Endpoints.Endpoints) != 0 {
 		j, _ := json.Marshal(rules.Endpoints)
 		rulesStr := string(j)
@@ -105,7 +143,7 @@ func (r *rulesHandler) RegisterRules(ctx context.Context, rules usecase_models.R
 		}
 	}
 
-	_, err := r.taskPusher.PushRules(ctx, rules)
+	_, err = r.taskPusher.PushRules(ctx, rules)
 	if err != nil {
 		return err
 	}

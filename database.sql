@@ -19,6 +19,17 @@ create table if not exists accounts
     deleted_at TIMESTAMP
 );
 
+create table if not exists packages
+(
+    id SERIAL primary key,
+    price int NOT NULL,
+    limits jsonb,
+
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP
+);
+
 create table if not exists projects
 (
     id SERIAL primary key,
@@ -26,14 +37,16 @@ create table if not exists projects
     is_active bool,
     expire_at TIMESTAMP ,
     account_id int NOT NULL,
+    package_id int NOT NULL,
     notifications jsonb,
 
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_at TIMESTAMP NOT NULL,
     deleted_at TIMESTAMP,
 
-    foreign key (account_id) references accounts(id)
-    );
+    foreign key (account_id) references accounts(id),
+    foreign key (package_id) references packages(id)
+);
 
 create table if not exists endpoints
 (

@@ -9,6 +9,7 @@ var TableNames = struct {
 	Datacenters         string
 	Endpoints           string
 	NetCats             string
+	Packages            string
 	PageSpeeds          string
 	Pings               string
 	Projects            string
@@ -21,6 +22,7 @@ var TableNames = struct {
 	Datacenters:         "datacenters",
 	Endpoints:           "endpoints",
 	NetCats:             "net_cats",
+	Packages:            "packages",
 	PageSpeeds:          "page_speeds",
 	Pings:               "pings",
 	Projects:            "projects",

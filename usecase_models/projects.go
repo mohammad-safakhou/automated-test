@@ -10,6 +10,7 @@ type Project struct {
 	IsActive      bool          `json:"is_active"`
 	Notifications Notifications `json:"notifications"`
 	AccountId     int           `json:"account_id"`
+	PackageId     int           `json:"package_id"`
 	ExpireAt      string        `json:"expire_at"`
 	UpdatedAt     time.Time     `json:"updated_at"`
 	CreatedAt     time.Time     `json:"created_at"`

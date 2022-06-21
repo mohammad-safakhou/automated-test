@@ -33,6 +33,9 @@ type HttpControllers interface {
 	CreateProject(ctx echo.Context) error
 	GetProject(ctx echo.Context) error
 	UpdateProject(ctx echo.Context) error
+	CreatePackage(ctx echo.Context) error
+	GetPackage(ctx echo.Context) error
+	UpdatePackage(ctx echo.Context) error
 	CreateDatacenter(ctx echo.Context) error
 	GetDatacenter(ctx echo.Context) error
 	UpdateDatacenter(ctx echo.Context) error
@@ -48,6 +51,7 @@ type httpControllers struct {
 	projectRepo                repos.ProjectsRepository
 	datacenterRepo             repos.DataCentersRepository
 	aggregateRepository        repos.AggregateRepository
+	packageRepository          repos.PackagesRepository
 	endpointReportRepository   influx.EndpointReportRepository
 	netCatsReportRepository    influx.NetCatsReportRepository
 	pageSpeedReportRepository  influx.PageSpeedReportRepository
@@ -60,6 +64,7 @@ func NewHttpControllers(rulesHandler RulesHandler,
 	projectRepo repos.ProjectsRepository,
 	datacenterRepo repos.DataCentersRepository,
 	aggregateRepository repos.AggregateRepository,
+	packageRepository repos.PackagesRepository,
 	endpointReportRepository influx.EndpointReportRepository,
 	netCatsReportRepository influx.NetCatsReportRepository,
 	pageSpeedReportRepository influx.PageSpeedReportRepository,
@@ -71,6 +76,7 @@ func NewHttpControllers(rulesHandler RulesHandler,
 		projectRepo:                projectRepo,
 		datacenterRepo:             datacenterRepo,
 		aggregateRepository:        aggregateRepository,
+		packageRepository:          packageRepository,
 		endpointReportRepository:   endpointReportRepository,
 		netCatsReportRepository:    netCatsReportRepository,
 		pageSpeedReportRepository:  pageSpeedReportRepository,
@@ -154,6 +160,7 @@ func (hc *httpControllers) CreateProject(ctx echo.Context) error {
 		IsActive:      null.NewBool(req.IsActive, true),
 		ExpireAt:      null.NewTime(expire, true),
 		AccountID:     IdentityStruct.Id,
+		PackageID:     req.PackageId,
 		Notifications: null.NewJSON(notif, true),
 	})
 	if err != nil {
@@ -202,6 +209,7 @@ func (hc *httpControllers) GetProject(ctx echo.Context) error {
 			Title:         project.Title.String,
 			IsActive:      project.IsActive.Bool,
 			Notifications: notifications,
+			PackageId:     project.PackageID,
 			ExpireAt:      project.ExpireAt.Time.String(),
 			UpdatedAt:     project.UpdatedAt,
 			CreatedAt:     project.CreatedAt,
@@ -239,6 +247,100 @@ func (hc *httpControllers) UpdateProject(ctx echo.Context) error {
 		IsActive:      null.NewBool(req.IsActive, true),
 		ExpireAt:      null.NewTime(expire, true),
 		Notifications: null.NewJSON(notifications, true),
+	})
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusCreated, "")
+}
+
+func (hc *httpControllers) CreatePackage(ctx echo.Context) error {
+	req := new(usecase_models.Package)
+	if err := ctx.Bind(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	limits, _ := json.Marshal(req.Limits)
+	packageId, err := hc.packageRepository.SavePackages(ctx.Request().Context(), models.Package{
+		ID:     0,
+		Price:  req.Price,
+		Limits: null.NewJSON(limits, true),
+	})
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, usecase_models.CreatePackageResponse{
+		PackageId: packageId,
+	})
+}
+
+func (hc *httpControllers) GetPackage(ctx echo.Context) error {
+	packageId := 0
+	var err error
+	if ctx.Param("package_id") != "" {
+		packageId, err = strconv.Atoi(ctx.Param("package_id"))
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		}
+	}
+
+	var packages []*models.Package
+	if packageId != 0 {
+		packagee, err := hc.packageRepository.GetPackage(ctx.Request().Context(), packageId)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		}
+		packages = append(packages, &packagee)
+	} else {
+		packagess, err := hc.packageRepository.GetPackages(ctx.Request().Context())
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		}
+		packages = append(packages, packagess...)
+	}
+
+	var packagesResponse []usecase_models.Package
+	for _, packagee := range packages {
+		var limits usecase_models.Limits
+		err = json.Unmarshal(packagee.Limits.JSON, &limits)
+		if err != nil {
+			continue
+		}
+		packagesResponse = append(packagesResponse, usecase_models.Package{
+			ID:        packagee.ID,
+			Price:     packagee.Price,
+			Limits:    limits,
+			UpdatedAt: packagee.UpdatedAt,
+			CreatedAt: packagee.CreatedAt,
+			DeletedAt: packagee.DeletedAt.Time,
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, packagesResponse)
+}
+
+func (hc *httpControllers) UpdatePackage(ctx echo.Context) error {
+	req := new(usecase_models.Package)
+	if err := ctx.Bind(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	packageId, err := strconv.Atoi(ctx.Param("package_id"))
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	limits, err := json.Marshal(req.Limits)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	err = hc.packageRepository.UpdatePackages(ctx.Request().Context(), models.Package{
+		ID:     packageId,
+		Price:  req.Price,
+		Limits: null.NewJSON(limits, true),
 	})
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, err.Error())

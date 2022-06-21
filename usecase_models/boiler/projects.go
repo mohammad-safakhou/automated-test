@@ -29,6 +29,7 @@ type Project struct {
 	IsActive      null.Bool   `boil:"is_active" json:"is_active,omitempty" toml:"is_active" yaml:"is_active,omitempty"`
 	ExpireAt      null.Time   `boil:"expire_at" json:"expire_at,omitempty" toml:"expire_at" yaml:"expire_at,omitempty"`
 	AccountID     int         `boil:"account_id" json:"account_id" toml:"account_id" yaml:"account_id"`
+	PackageID     int         `boil:"package_id" json:"package_id" toml:"package_id" yaml:"package_id"`
 	Notifications null.JSON   `boil:"notifications" json:"notifications,omitempty" toml:"notifications" yaml:"notifications,omitempty"`
 	UpdatedAt     time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt     time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
@@ -44,6 +45,7 @@ var ProjectColumns = struct {
 	IsActive      string
 	ExpireAt      string
 	AccountID     string
+	PackageID     string
 	Notifications string
 	UpdatedAt     string
 	CreatedAt     string
@@ -54,6 +56,7 @@ var ProjectColumns = struct {
 	IsActive:      "is_active",
 	ExpireAt:      "expire_at",
 	AccountID:     "account_id",
+	PackageID:     "package_id",
 	Notifications: "notifications",
 	UpdatedAt:     "updated_at",
 	CreatedAt:     "created_at",
@@ -66,6 +69,7 @@ var ProjectTableColumns = struct {
 	IsActive      string
 	ExpireAt      string
 	AccountID     string
+	PackageID     string
 	Notifications string
 	UpdatedAt     string
 	CreatedAt     string
@@ -76,6 +80,7 @@ var ProjectTableColumns = struct {
 	IsActive:      "projects.is_active",
 	ExpireAt:      "projects.expire_at",
 	AccountID:     "projects.account_id",
+	PackageID:     "projects.package_id",
 	Notifications: "projects.notifications",
 	UpdatedAt:     "projects.updated_at",
 	CreatedAt:     "projects.created_at",
@@ -108,36 +113,13 @@ func (w whereHelpernull_Bool) GTE(x null.Bool) qm.QueryMod {
 func (w whereHelpernull_Bool) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_Bool) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
-type whereHelpernull_JSON struct{ field string }
-
-func (w whereHelpernull_JSON) EQ(x null.JSON) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_JSON) NEQ(x null.JSON) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_JSON) LT(x null.JSON) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_JSON) LTE(x null.JSON) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_JSON) GT(x null.JSON) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_JSON) GTE(x null.JSON) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_JSON) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_JSON) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var ProjectWhere = struct {
 	ID            whereHelperint
 	Title         whereHelpernull_String
 	IsActive      whereHelpernull_Bool
 	ExpireAt      whereHelpernull_Time
 	AccountID     whereHelperint
+	PackageID     whereHelperint
 	Notifications whereHelpernull_JSON
 	UpdatedAt     whereHelpertime_Time
 	CreatedAt     whereHelpertime_Time
@@ -148,6 +130,7 @@ var ProjectWhere = struct {
 	IsActive:      whereHelpernull_Bool{field: "\"projects\".\"is_active\""},
 	ExpireAt:      whereHelpernull_Time{field: "\"projects\".\"expire_at\""},
 	AccountID:     whereHelperint{field: "\"projects\".\"account_id\""},
+	PackageID:     whereHelperint{field: "\"projects\".\"package_id\""},
 	Notifications: whereHelpernull_JSON{field: "\"projects\".\"notifications\""},
 	UpdatedAt:     whereHelpertime_Time{field: "\"projects\".\"updated_at\""},
 	CreatedAt:     whereHelpertime_Time{field: "\"projects\".\"created_at\""},
@@ -175,8 +158,8 @@ func (*projectR) NewStruct() *projectR {
 type projectL struct{}
 
 var (
-	projectAllColumns            = []string{"id", "title", "is_active", "expire_at", "account_id", "notifications", "updated_at", "created_at", "deleted_at"}
-	projectColumnsWithoutDefault = []string{"account_id", "created_at"}
+	projectAllColumns            = []string{"id", "title", "is_active", "expire_at", "account_id", "package_id", "notifications", "updated_at", "created_at", "deleted_at"}
+	projectColumnsWithoutDefault = []string{"account_id", "package_id", "created_at"}
 	projectColumnsWithDefault    = []string{"id", "title", "is_active", "expire_at", "notifications", "updated_at", "deleted_at"}
 	projectPrimaryKeyColumns     = []string{"id"}
 	projectGeneratedColumns      = []string{}

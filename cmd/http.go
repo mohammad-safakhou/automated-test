@@ -74,7 +74,7 @@ var httpCmd = &cobra.Command{
 
 		agentHandler := handlers.NewAgentHandler()
 		//endpointHandler := handlers.NewEndpointHandler(endpointRepo, dataCenterRepo, taskPusher, agentHandler)
-		ruleHandler := handlers.NewRulesHandler(endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
+		ruleHandler := handlers.NewRulesHandler(projectRepo, endpointRepo, netCatRepo, pageSpeedRepo, pingRepo, traceRouteRepo, dataCenterRepo, taskPusher, agentHandler)
 		controllers := handlers.NewHttpControllers(
 			ruleHandler,
 			accountRepo,
@@ -101,6 +101,9 @@ var httpCmd = &cobra.Command{
 		e.POST("/projects", controllers.CreateProject, handlers.WithAuth())
 		e.GET("/projects/:project_id", controllers.GetProject, handlers.WithAuth())
 		e.PUT("/projects/:project_id", controllers.UpdateProject, handlers.WithAuth())
+		e.POST("/packages", controllers.CreatePackage, handlers.WithAuth())
+		e.GET("/packages/:package_id", controllers.GetPackage, handlers.WithAuth())
+		e.PUT("/packages/:package_id", controllers.UpdatePackage, handlers.WithAuth())
 		e.POST("/datacenters", controllers.CreateDatacenter, handlers.WithAuth())
 		e.GET("/datacenters/:datacenter_id", controllers.GetDatacenter, handlers.WithAuth())
 		e.PUT("/datacenters/:datacenter_id", controllers.UpdateDatacenter, handlers.WithAuth())
