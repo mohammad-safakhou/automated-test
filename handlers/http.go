@@ -263,7 +263,7 @@ func (hc *httpControllers) CreatePackage(ctx echo.Context) error {
 
 	limits, _ := json.Marshal(req.Limits)
 	packageId, err := hc.packageRepository.SavePackages(ctx.Request().Context(), models.Package{
-		ID:     0,
+		Title:  null.NewString(req.Title, true),
 		Price:  req.Price,
 		Limits: null.NewJSON(limits, true),
 	})

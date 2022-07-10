@@ -22,6 +22,7 @@ create table if not exists accounts
 create table if not exists packages
 (
     id SERIAL primary key,
+    title text,
     price int NOT NULL,
     limits jsonb,
 

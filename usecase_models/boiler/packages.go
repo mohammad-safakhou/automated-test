@@ -24,12 +24,13 @@ import (
 
 // Package is an object representing the database table.
 type Package struct {
-	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Price     int       `boil:"price" json:"price" toml:"price" yaml:"price"`
-	Limits    null.JSON `boil:"limits" json:"limits,omitempty" toml:"limits" yaml:"limits,omitempty"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	DeletedAt null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	ID        int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Title     null.String `boil:"title" json:"title,omitempty" toml:"title" yaml:"title,omitempty"`
+	Price     int         `boil:"price" json:"price" toml:"price" yaml:"price"`
+	Limits    null.JSON   `boil:"limits" json:"limits,omitempty" toml:"limits" yaml:"limits,omitempty"`
+	UpdatedAt time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	DeletedAt null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *packageR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L packageL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -37,6 +38,7 @@ type Package struct {
 
 var PackageColumns = struct {
 	ID        string
+	Title     string
 	Price     string
 	Limits    string
 	UpdatedAt string
@@ -44,6 +46,7 @@ var PackageColumns = struct {
 	DeletedAt string
 }{
 	ID:        "id",
+	Title:     "title",
 	Price:     "price",
 	Limits:    "limits",
 	UpdatedAt: "updated_at",
@@ -53,6 +56,7 @@ var PackageColumns = struct {
 
 var PackageTableColumns = struct {
 	ID        string
+	Title     string
 	Price     string
 	Limits    string
 	UpdatedAt string
@@ -60,6 +64,7 @@ var PackageTableColumns = struct {
 	DeletedAt string
 }{
 	ID:        "packages.id",
+	Title:     "packages.title",
 	Price:     "packages.price",
 	Limits:    "packages.limits",
 	UpdatedAt: "packages.updated_at",
@@ -95,6 +100,7 @@ func (w whereHelpernull_JSON) IsNotNull() qm.QueryMod { return qmhelper.WhereIsN
 
 var PackageWhere = struct {
 	ID        whereHelperint
+	Title     whereHelpernull_String
 	Price     whereHelperint
 	Limits    whereHelpernull_JSON
 	UpdatedAt whereHelpertime_Time
@@ -102,6 +108,7 @@ var PackageWhere = struct {
 	DeletedAt whereHelpernull_Time
 }{
 	ID:        whereHelperint{field: "\"packages\".\"id\""},
+	Title:     whereHelpernull_String{field: "\"packages\".\"title\""},
 	Price:     whereHelperint{field: "\"packages\".\"price\""},
 	Limits:    whereHelpernull_JSON{field: "\"packages\".\"limits\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"packages\".\"updated_at\""},
@@ -126,9 +133,9 @@ func (*packageR) NewStruct() *packageR {
 type packageL struct{}
 
 var (
-	packageAllColumns            = []string{"id", "price", "limits", "updated_at", "created_at", "deleted_at"}
+	packageAllColumns            = []string{"id", "title", "price", "limits", "updated_at", "created_at", "deleted_at"}
 	packageColumnsWithoutDefault = []string{"price", "created_at"}
-	packageColumnsWithDefault    = []string{"id", "limits", "updated_at", "deleted_at"}
+	packageColumnsWithDefault    = []string{"id", "title", "limits", "updated_at", "deleted_at"}
 	packagePrimaryKeyColumns     = []string{"id"}
 	packageGeneratedColumns      = []string{}
 )

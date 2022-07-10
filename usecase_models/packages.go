@@ -4,6 +4,7 @@ import "time"
 
 type Package struct {
 	ID        int       `json:"id"`
+	Title     string    `json:"title"`
 	Price     int       `json:"price"`
 	Limits    Limits    `json:"limits"`
 	UpdatedAt time.Time `json:"updated_at"`
